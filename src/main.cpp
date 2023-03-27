@@ -20,6 +20,13 @@ struct OSMWay
     std::vector<uint64_t> refs;
 };
 
+struct OSMRelation
+{
+    char* type;
+    std::vector<uint64_t> way_refs;
+};
+
+
 struct OSMData
 {
     std::map<uint64_t, OSMNode>  nodes;
@@ -54,6 +61,7 @@ int main(int argc, char** argv)
     OSMData osm_data;
     std::map<uint64_t, OSMNode> osm_nodes;
     std::vector<OSMWay> osm_ways;
+    std::vector<OSMRelation> osm_relations;
 
     auto all_xml_nodes = doc.child("osm").children();
     uint64_t inc = 0;
@@ -73,30 +81,55 @@ int main(int argc, char** argv)
 
             inc++;   
         }
+
+        if( strcmp(child.name(), "relation") == 0)
+        {
+
+            bool is_multipolygon_rel = false;
+            bool is_building_rel = false;        
+            auto& tag_set = child.select_nodes("tag");
+            for(const auto& tag_item : tag_set)
+            {
         
+                auto& tag_node = tag_item.node();
+                if( strcmp(tag_node.attribute("k").value(), "type") == 0 && strcmp(tag_node.attribute("v").value(), "multipolygon") == 0)
+                {
+                    is_multipolygon_rel = true;
+
+                }
+                if( strcmp(tag_node.attribute("k").value(), "building") == 0 && strcmp(tag_node.attribute("v").value(), "yes") == 0)
+                {
+                    is_building_rel = true;
+
+                }
+             
+            } 
+
+
+            if( is_building_rel && is_multipolygon_rel)
+            {
+                OSMRelation relation;
+                relation.type = "multipolygon";
+                auto& member_set = child.select_nodes("member");
+
+                for(const auto& member_item: member_set)
+                {
+                    auto& member_node = member_item.node();
+                    
+                    if(strcmp(member_node.attribute("type").value(), "way") == 0)
+                    {
+                        std::cout << "multipolygon -> " << member_node.attribute("role").value() << std::endl;
+                        
+                    }
+                    
+                }
+            }   
+
+
+        }
+    
     }
-
-    // return 0;
-
-    // pugi::xpath_node_set nodes_set = doc.select_nodes("/osm/node");
-
-    // nodes_set.sort(false);
-
-    // for (size_t i = 0; i< nodes_set.size(); i++)
-    // {
-    //     auto& node = nodes_set[i];
-    //     pugi::xml_node _node = node.node();
-
-    //     OSMNode osm_node;
-    //     uint64_t node_id =  (uint64_t)_node.attribute("id").as_ullong();
-    //     osm_node.node_id = node_id;
-    //     osm_node.point_id = (uint64_t)i;
-    //     osm_node.lat = _node.attribute("lat").as_float(); //.as_float();
-    //     osm_node.lon = _node.attribute("lon").as_float();
-
-    //     osm_nodes[node_id] = osm_node;
-
-    // }    
+  
 
     osm_data.nodes = osm_nodes;
 
@@ -122,7 +155,12 @@ int main(int argc, char** argv)
                 is_highway = true;
                 break;
             }
-            if(strcmp(tag_key, "building") == 0 && strcmp(tag_value, "yes") == 0 )
+            // if(strcmp(tag_key, "building") == 0 && strcmp(tag_value, "yes") == 0 )
+            // {
+            //     is_building = true;
+            //     break;
+            // }
+            if(strcmp(tag_key, "building") == 0 )
             {
                 is_building = true;
                 break;
