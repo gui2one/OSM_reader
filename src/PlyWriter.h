@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <algorithm>
 #include <iostream>     // std::cout, std::fixed
 #include <iomanip>      // std::setprecision
 
@@ -13,12 +14,12 @@ struct OSMPoint{
     float x;
     float y;
     float z;
-    uint32_t node_id;
-    uint32_t point_id;
+    uint64_t node_id;
+    uint64_t point_id;
 };
 struct OSMMesh{
     std::vector<OSMPoint> points;
-    std::vector<std::vector<uint32_t>> faces;
+    std::vector<std::vector<uint64_t>> faces;
 };
 
 class PlyWriter
