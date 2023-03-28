@@ -100,7 +100,7 @@ OSMData OSMReader::Load(const char *path)
                     
                     if(strcmp(member_node.attribute("type").value(), "way") == 0)
                     {
-                        std::cout << "multipolygon -> " << member_node.attribute("role").value() << std::endl;
+                        // std::cout << "multipolygon -> " << member_node.attribute("role").value() << std::endl;
                         
                     }
                     

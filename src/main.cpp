@@ -11,12 +11,12 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
 
     for(auto& point : osm_data.nodes)
     {
-        mesh.points.push_back({point.second.lon, 0.0, point.second.lat, point.second.node_id, point.second.point_id});
+        mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
     }
 
     for(const auto& way : osm_data.ways)
     {
-        std::vector<uint64_t> indices;
+        std::vector<uint32_t> indices;
         for(auto& ref_node : way.second.refs)
         {
             // std::cout << ref_node << std::endl;
@@ -43,19 +43,19 @@ int main(int argc, char** argv)
     std::cout << "OSM Reader" << std::endl;
 
     OSMReader reader;
-    // OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm");
-    OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm");
+    OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm");
+    // OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm");
 
     OSMMesh mesh;
 
     for(auto& point : osm_data.nodes)
     {
-        mesh.points.push_back({point.second.lon, 0.0, point.second.lat, point.second.node_id, point.second.point_id});
+        mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
     }
 
     for(const auto& way : osm_data.ways)
     {
-        std::vector<uint64_t> indices;
+        std::vector<uint32_t> indices;
         for(auto& ref_node : way.second.refs)
         {
             // std::cout << ref_node << std::endl;
@@ -75,6 +75,10 @@ int main(int argc, char** argv)
         }
     }
 
+
+    OSMMesh my_mesh;
+    my_mesh.points = { {0.0f, 0.0f, 0.0f, 0}, {1.0f, 0.0f, 0.0f, 1}};
+    my_mesh.faces = { {0, 1}};
     PlyWriter ply_writer;
     // ply_writer.WriteASCII("hello.ply", mesh);
     ply_writer.WriteBinary("hello_bin.ply", mesh);

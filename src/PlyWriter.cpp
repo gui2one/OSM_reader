@@ -43,7 +43,7 @@ void PlyWriter::WriteASCII(const char *path, OSMMesh &osm_mesh)
         ss << std::setprecision(20) << point.x << " " ;
         ss << std::setprecision(20) << point.y << " " ;
         ss << std::setprecision(20) << point.z << " " ;
-        ss << std::fixed << (uint64_t)point.point_id << std::endl;
+        ss << std::fixed << (uint32_t)point.point_id << std::endl;
     }
 
     for(const auto& face : osm_mesh.faces)
@@ -73,7 +73,7 @@ void PlyWriter::WriteASCII(const char *path, OSMMesh &osm_mesh)
 
 struct test_struct
 {
-    uint64_t id;
+    uint32_t id;
     float x;
     float y;
     float z;
@@ -100,17 +100,36 @@ void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
     ss << "element face " << osm_mesh.faces.size() << std::endl;
     ss << "property list uchar uint vertex_index" << std::endl;
     ss << "end_header" << std::endl;
+    
+    out_file << ss.rdbuf();
 
     /* sort vertices by point_id */
     std::sort(osm_mesh.points.begin(), osm_mesh.points.end(), [](OSMPoint& pt1, OSMPoint& pt2){
         return (pt1.point_id < pt2.point_id);
     });
 
-    out_file << ss.rdbuf();
-
-    test_struct test = {42, 0.0f, 1.0f, 2.0f};
-    out_file.write(reinterpret_cast<char*>(&test), sizeof(test_struct));
+    for(auto& pt : osm_mesh.points)
+    {
+        out_file.write(reinterpret_cast<char*>(&pt), sizeof(pt));
+    }
     
+    // out_file << std::endl;
 
+    for(auto& face : osm_mesh.faces)
+    {
+        unsigned char num_verts = (unsigned char)face.size();
+        /* first write number of vertices in this face */
+        out_file.write(reinterpret_cast<char*>(&num_verts), sizeof(num_verts));
+
+        for(auto& index : face )
+        {
+            // std::cout << index << std::endl;
+            
+            out_file.write(reinterpret_cast<char*>(&index), sizeof(index));
+        }
+
+    }
+
+    out_file << std::endl;
     out_file.close();
 }
