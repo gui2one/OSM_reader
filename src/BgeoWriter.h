@@ -15,9 +15,11 @@ public:
 
 
     void WriteASCII(const char * path, OSMMesh& mesh);
-    void WriteBinary(const char * path, OSMMesh& mesh);
+
 
     void write_header_ascii(std::ostream& output, OSMMesh& mesh);
+    void write_info_ascii(std::ostream& output, OSMMesh& mesh);
+    void write_topology_ascii(std::ostream& output, OSMMesh& mesh);
 private:
 
 };
