@@ -98,7 +98,7 @@ void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
     ss << "property uint point_id" << std::endl;
 
     ss << "element face " << osm_mesh.faces.size() << std::endl;
-    ss << "property list uchar uint vertex_index" << std::endl;
+    ss << "property list uint uint vertex_index" << std::endl;
     ss << "end_header" << std::endl;
     
     out_file << ss.rdbuf();
@@ -117,7 +117,7 @@ void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
 
     for(auto& face : osm_mesh.faces)
     {
-        unsigned char num_verts = (unsigned char)face.size();
+        uint32_t num_verts = (uint32_t)face.size();
         /* first write number of vertices in this face */
         out_file.write(reinterpret_cast<char*>(&num_verts), sizeof(num_verts));
 

@@ -43,8 +43,8 @@ int main(int argc, char** argv)
     std::cout << "OSM Reader" << std::endl;
 
     OSMReader reader;
-    OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm");
-    // OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm");
+    // OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm");
+    OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm");
 
     OSMMesh mesh;
 
