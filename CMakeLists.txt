@@ -2,13 +2,17 @@ cmake_minimum_required(VERSION 3.6)
 
 project(osm_reader)
 
+set(CMAKE_CXX_STANDARD 17)
+
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/OSMReader.cpp
     src/PlyWriter.cpp
 )
 
 include_directories(
     vendor/pugixml/src/
+    src/
 )
 
 # pugixml

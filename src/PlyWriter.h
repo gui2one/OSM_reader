@@ -29,6 +29,7 @@ public:
     ~PlyWriter();
 
     void WriteASCII(const char* path, OSMMesh& osm_mesh);
+    void WriteBinary(const char* path, OSMMesh& osm_mesh);
 private:
 
 };

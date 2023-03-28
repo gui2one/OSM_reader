@@ -1,5 +1,5 @@
 #include "PlyWriter.h"
-
+#include <cstdint>
 PlyWriter::PlyWriter()
 {
 
@@ -21,7 +21,6 @@ void PlyWriter::WriteASCII(const char *path, OSMMesh &osm_mesh)
     ss << "ply" << std::endl;
     ss << "format ascii 1.0" << std::endl;
     ss << "comment made by gui2one (PlyWriter.cpp v0.1)" << std::endl;
-    ss << "comment this file is a cube" << std::endl;
     ss << "element vertex " << osm_mesh.points.size()<< std::endl;
     ss << "property float x" << std::endl;
     ss << "property float y" << std::endl;
@@ -68,6 +67,50 @@ void PlyWriter::WriteASCII(const char *path, OSMMesh &osm_mesh)
 
     /* write stringstream buffer content to file */
     out_file << ss.rdbuf();
+
+    out_file.close();
+}
+
+struct test_struct
+{
+    uint64_t id;
+    float x;
+    float y;
+    float z;
+};
+
+
+
+void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
+{
+
+    std::ofstream out_file(path, std::ios::binary | std::ios::out);
+    std::stringstream ss;
+
+
+    ss << "ply" << std::endl;
+    ss << "format binary_little_endian 1.0" << std::endl;
+    ss << "comment made by gui2one (PlyWriter.cpp v0.1)" << std::endl;
+    ss << "element vertex " << osm_mesh.points.size()<< std::endl;
+    ss << "property float x" << std::endl;
+    ss << "property float y" << std::endl;
+    ss << "property float z" << std::endl;
+    ss << "property uint point_id" << std::endl;
+
+    ss << "element face " << osm_mesh.faces.size() << std::endl;
+    ss << "property list uchar uint vertex_index" << std::endl;
+    ss << "end_header" << std::endl;
+
+    /* sort vertices by point_id */
+    std::sort(osm_mesh.points.begin(), osm_mesh.points.end(), [](OSMPoint& pt1, OSMPoint& pt2){
+        return (pt1.point_id < pt2.point_id);
+    });
+
+    out_file << ss.rdbuf();
+
+    test_struct test = {42, 0.0f, 1.0f, 2.0f};
+    out_file.write(reinterpret_cast<char*>(&test), sizeof(test_struct));
+    
 
     out_file.close();
 }
