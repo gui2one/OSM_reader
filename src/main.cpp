@@ -3,6 +3,7 @@
 #include <map>
 // #include "pugixml.hpp"
 #include "PlyWriter.h"
+#include "BgeoWriter.h"
 
 #include "OSMReader.h"
 OSMMesh OSMDataToMesh(const OSMData& osm_data)
@@ -42,6 +43,17 @@ int main(int argc, char** argv)
 {
     std::cout << "OSM Reader" << std::endl;
 
+    OSMMesh my_mesh;
+    my_mesh.points = { {0.0f, 0.0f, 0.0f, 0}, {1.0f, 0.0f, 0.0f, 1}};
+    my_mesh.faces = { {0, 1}};
+
+    BgeoWriter bgeo_writer;
+    bgeo_writer.WriteBinary("bgeo_test.bgeo", my_mesh);
+    bgeo_writer.WriteASCII("bgeo_ASCII_test.geo", my_mesh);
+
+    return 0;
+
+
     OSMReader reader;
     // OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm");
     OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm");
@@ -76,9 +88,7 @@ int main(int argc, char** argv)
     }
 
 
-    OSMMesh my_mesh;
-    my_mesh.points = { {0.0f, 0.0f, 0.0f, 0}, {1.0f, 0.0f, 0.0f, 1}};
-    my_mesh.faces = { {0, 1}};
+
     PlyWriter ply_writer;
     // ply_writer.WriteASCII("hello.ply", mesh);
     ply_writer.WriteBinary("hello_bin.ply", mesh);

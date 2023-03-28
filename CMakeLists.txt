@@ -8,6 +8,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/OSMReader.cpp
     src/PlyWriter.cpp
+    src/BgeoWriter.cpp
 )
 
 include_directories(
