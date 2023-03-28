@@ -113,18 +113,16 @@ void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
         out_file.write(reinterpret_cast<char*>(&pt), sizeof(pt));
     }
     
-    // out_file << std::endl;
 
     for(auto& face : osm_mesh.faces)
     {
-        uint32_t num_verts = (uint32_t)face.size();
         /* first write number of vertices in this face */
+        uint32_t num_verts = (uint32_t)face.size();
         out_file.write(reinterpret_cast<char*>(&num_verts), sizeof(num_verts));
 
+        /* then write the face vertices indices */
         for(auto& index : face )
         {
-            // std::cout << index << std::endl;
-            
             out_file.write(reinterpret_cast<char*>(&index), sizeof(index));
         }
 
