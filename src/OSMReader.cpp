@@ -314,21 +314,24 @@ std::ostream& operator<<(std::ostream& os, const OSMNode& node)
 
 std::ostream& operator<<(std::ostream& os, const OSMWay& way)
 {
-    os << "OSM Way "  << way.id;
-    os << " --Num Refs -> "  << way.refs.size() << std::endl;
+    os << "OSM Way "  << way.id << std::endl;
+    os << "\t- Num Refs : "  << way.refs.size() << std::endl;
+    os << "\t- Tags : " << std::endl;
 
     for(const auto&[key, value] : way.tags)
     {
         os << "\t\t" << key << " : " << value << std::endl; 
     }
+
+    os << "---------------------------"; 
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const OSMRelation& relation)
 {
     os << "OSM Relation "  << relation.id << std::endl;
-    os << "\t-Members : "  << relation.members.size() << std::endl;
-    os << "\t-Tags : "  << std::endl;
+    os << "\t- Members : "  << relation.members.size() << std::endl;
+    os << "\t- Tags : "  << std::endl;
     for(const auto&[key, value] : relation.tags)
     {
         os << "\t\t" << key << " : " << value << std::endl; 
