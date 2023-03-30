@@ -11,22 +11,32 @@ OSMReader::~OSMReader()
 
 }
 
+static OSMData empty_data()
+{
+    OSMData empty_data;
+    empty_data.is_empty = true;
+
+    return empty_data;
+}
 OSMData OSMReader::Load(fs::path path)
 {
-
-    if( path.extension() == fs::path(".osm"))
+    if(!fs::exists(path))
     {
+        LOG_ERROR("File Not Found : {}", path);
+        return empty_data();        
+    }
 
+    if( path.extension() != fs::path(".osm"))
+    {
+        LOG_ERROR("File extension should be .osm,  given extension is : {}", path.extension());
     }
 
     pugi::xml_parse_result result = m_XMLDoc.load_file(path.string().c_str());
 
     if (!result)
     {
-        std::cout << "Error Parsing File " << path << std::endl;
-        OSMData empty_data;
-        empty_data.is_empty = true;
-        return empty_data;
+        LOG_ERROR("Error Parsing File {}" ,path);
+        return empty_data();
     }
       
     OSMData osm_data; 
