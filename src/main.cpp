@@ -40,9 +40,84 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
     //     }
     // }
 
-    for(const auto& relation : osm_data.relations)
+    for(const auto& [id, relation] : osm_data.relations)
     {
-        
+
+        if(relation.IsBuildingType())
+        {
+
+            // LOG_INFO(relation);
+            // continue;
+
+            OSMFace face;
+
+            for(auto& member : relation.members)
+            {
+                if(member.type == OSMRelationMemberType::Way)
+                {
+                    uint64_t ref_way_id = member.ref_id;
+
+                    try
+                    {
+                        const OSMWay& way = osm_data.ways.at(ref_way_id);
+                        std::vector<uint32_t> indices;
+                        for(const auto& node_ref : way.refs)
+                        {
+                            const OSMNode& node = osm_data.nodes.at(node_ref);
+                            indices.push_back(node.point_id);
+
+                        }
+
+                        face.indices = indices;
+                        mesh.faces.push_back(face);                        
+                        // LOG_INFO("building relation : Pushed indices");
+                    }catch(const std::exception& e){
+                    
+                        LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
+                    }
+                }else{
+                    LOG_INFO("Not implemented yet");
+                }
+            }
+
+
+        }else if(relation.IsMultipolygonType())
+        {
+            // LOG_INFO(relation);
+            // continue;
+
+            OSMFace face;
+
+            for(auto& member : relation.members)
+            {
+                if(member.type == OSMRelationMemberType::Way)
+                {
+                    uint64_t ref_way_id = member.ref_id;
+
+                    try
+                    {
+                        const OSMWay& way = osm_data.ways.at(ref_way_id);
+                        std::vector<uint32_t> indices;
+                        for(const auto& node_ref : way.refs)
+                        {
+                            const OSMNode& node = osm_data.nodes.at(node_ref);
+                            indices.push_back(node.point_id);
+
+                        }
+
+                        face.indices = indices;
+                        mesh.faces.push_back(face);                        
+                        LOG_INFO("building relation : Pushed indices");
+                    }catch(const std::exception& e){
+                    
+                        LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
+                    }
+                }else{
+                    LOG_INFO("Not implemented yet");
+                }
+            }            
+        }
+    
     }
 
     return mesh;
@@ -80,18 +155,6 @@ int main(int argc, char** argv)
     OSMData osm_data = reader.Load(osm_file_path);
 
     LOG_INFO(osm_data);
-    
-    // for(const auto& [way_id, way_data] : osm_data.ways)
-    // {
-    //     std::cout << (OSMWay)way_data << std::endl;
-    //     break;
-    // }
-
-    // for(const auto& [id, data] : osm_data.relations)
-    // {
-    //     std::cout << (OSMRelation)data << std::endl;
-    //     break;
-    // }    
 
     if( !osm_data.is_empty)
     {

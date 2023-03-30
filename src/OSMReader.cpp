@@ -41,8 +41,8 @@ OSMData OSMReader::Load(fs::path path)
       
     OSMData osm_data; 
 
-    CollectAllWays(osm_data);
     CollectAllNodes(osm_data);
+    CollectAllWays(osm_data);
     CollectAllRelations(osm_data);
 
 
@@ -66,11 +66,36 @@ static TagsMap collect_child_tags(const pugi::xml_node& xml_node)
     return tags;
 }
 
+
+void OSMReader::CollectAllNodes(OSMData& data)
+{   
+    auto all_nodes_set = m_XMLDoc.child("osm").select_nodes("node");
+    
+    uint32_t pt_index = 0;
+    for(const auto& set_item : all_nodes_set)
+    {
+        auto node_node = set_item.node();
+        OSMNode osm_node;
+        osm_node.node_id = (uint64_t)node_node.attribute("id").as_ullong();
+        osm_node.point_id = pt_index;
+
+        osm_node.lat = node_node.attribute("lat").as_float();
+        osm_node.lon = node_node.attribute("lon").as_float();
+
+        data.nodes[osm_node.node_id] = osm_node;
+
+        pt_index++;
+        
+    }
+
+    LOG_INFO("Collected All Nodes : {}", data.nodes.size());
+    
+}
+
 void OSMReader::CollectAllWays(OSMData& data)
 {
     auto all_ways_set = m_XMLDoc.child("osm").select_nodes("way");
-    
-    std::cout << "Collecting All Ways ...";
+
     
     for(const auto& set_item : all_ways_set)
     {
@@ -95,44 +120,13 @@ void OSMReader::CollectAllWays(OSMData& data)
 
         
     }
-
-    std::cout << "OK" << std::endl;
-
-}
-
-void OSMReader::CollectAllNodes(OSMData& data)
-{
-
-    std::cout << "Collecting All Nodes ....";
     
-    auto all_nodes_set = m_XMLDoc.child("osm").select_nodes("node");
-    
-    uint32_t pt_index = 0;
-    for(const auto& set_item : all_nodes_set)
-    {
-        auto node_node = set_item.node();
-        OSMNode osm_node;
-        osm_node.node_id = node_node.attribute("id").as_ullong();
-        osm_node.point_id = pt_index;
+    LOG_INFO("Collected All Ways : {}", data.ways.size());
 
-        osm_node.lat = node_node.attribute("lat").as_float();
-        osm_node.lon = node_node.attribute("lon").as_float();
-
-        data.nodes[osm_node.node_id] = osm_node;
-
-        pt_index++;
-        
-    }
-
-    std::cout << "OK" << std::endl;
-    
 }
 
 void OSMReader::CollectAllRelations(OSMData& data)
 {
-
-    std::cout << "Collecting All Relations ....";
-    
     auto all_relations_set = m_XMLDoc.child("osm").select_nodes("relation");
 
     for(const auto& relation_item : all_relations_set)
@@ -153,7 +147,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
 
                 OSMRelationMember member;
                 member.type = OSMRelationMemberType::Node;
-                member.ref_id = member_node.attribute("ref").as_ullong();
+                member.ref_id = (uint64_t)member_node.attribute("ref").as_ullong();
                 member.role = member_node.attribute("role").as_string();
                 
                 relation.members.push_back(member);
@@ -163,7 +157,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
 
                 OSMRelationMember member;
                 member.type = OSMRelationMemberType::Way;
-                member.ref_id = member_node.attribute("ref").as_ullong();
+                member.ref_id = (uint64_t)member_node.attribute("ref").as_ullong();
                 member.role = member_node.attribute("role").as_string();
                 
                 relation.members.push_back(member);                
@@ -173,7 +167,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
 
                 OSMRelationMember member;
                 member.type = OSMRelationMemberType::Relation;
-                member.ref_id = member_node.attribute("ref").as_ullong();
+                member.ref_id = (uint64_t)member_node.attribute("ref").as_ullong();
                 member.role = member_node.attribute("role").as_string();
                 
                 relation.members.push_back(member);                
@@ -186,7 +180,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
         }
         data.relations[relation.id] = relation;
     }
-    std::cout << "OK" << std::endl;
+    LOG_INFO("Collected All Relations : {}", data.relations.size());
 }
 
 

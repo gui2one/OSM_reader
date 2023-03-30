@@ -19,6 +19,36 @@ bool OSMWay::HasTag(const char* tag_key)
 }
 
 
+bool OSMRelation::IsBuildingType() const
+{
+    for(const auto& [key, value]: tags)
+    {
+        if(
+            strcmp(key, "type") == 0 
+         && strcmp(value, "building") == 0
+        )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool OSMRelation::IsMultipolygonType() const
+{
+    for(const auto& [key, value]: tags)
+    {
+        if(
+            strcmp(key, "type") == 0 
+         && strcmp(value, "multipolygon") == 0
+        )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 OSMData::OSMData()
 {
 
@@ -56,6 +86,10 @@ std::ostream& operator<<(std::ostream& os, const OSMRelation& relation)
 {
     os << "OSM Relation "  << relation.id << std::endl;
     os << "\t- Members : "  << relation.members.size() << std::endl;
+    for(const auto& member : relation.members)
+    {
+        os << "\t\t- ref id : " << member.ref_id << std::endl; 
+    }    
     os << "\t- Tags : "  << std::endl;
     for(const auto&[key, value] : relation.tags)
     {
@@ -67,15 +101,12 @@ std::ostream& operator<<(std::ostream& os, const OSMRelation& relation)
 
 
 
-/*
-    std::ostream STUFF
-*/
-
 std::ostream& operator<<(std::ostream& os, const OSMData& data)
 {
     os << "OSM Data ->" << std::endl;
-    os << "\tNum Nodes : "  << data.nodes.size() << std::endl;
-    os << "\tNum Ways  : "  << data.ways.size() << std::endl;
-    os << "\tNum Relations  : "  << data.relations.size() << std::endl;
+    os << "\tNum Nodes     : "  << data.nodes.size() << std::endl;
+    os << "\tNum Ways      : "  << data.ways.size() << std::endl;
+    os << "\tNum Relations : "  << data.relations.size() << std::endl;
+    os << "---------------------------------";
     return os;
 }

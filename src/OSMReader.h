@@ -20,8 +20,8 @@ public:
 
     OSMData Load(fs::path path);
 
-    void CollectAllWays(OSMData& data);
     void CollectAllNodes(OSMData& data);
+    void CollectAllWays(OSMData& data);
     void CollectAllRelations(OSMData& data);
 
 private:

@@ -45,6 +45,9 @@ struct OSMRelation
     std::map<const char*, const char*> tags;
 
     friend std::ostream& operator<<(std::ostream& output, const OSMRelation& relation);
+
+    bool IsBuildingType() const;
+    bool IsMultipolygonType() const;
 };
 
 
