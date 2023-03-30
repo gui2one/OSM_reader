@@ -25,10 +25,15 @@ OSMReader::~OSMReader()
 
 }
 
-OSMData OSMReader::Load(const char *path)
+OSMData OSMReader::Load(fs::path path)
 {
 
-    pugi::xml_parse_result result = m_XMLDoc.load_file(path);
+    if( path.extension() == fs::path(".osm"))
+    {
+
+    }
+    
+    pugi::xml_parse_result result = m_XMLDoc.load_file(path.string().c_str());
 
     if (!result)
     {
@@ -37,15 +42,13 @@ OSMData OSMReader::Load(const char *path)
         empty_data.is_empty = true;
         return empty_data;
     }
-        
-    CollectAllWays();
-    CollectAllNodes();
-    CollectAllRelations();
+      
+    OSMData osm_data; 
 
-    OSMData osm_data;
-    std::map<uint64_t, OSMNode> osm_nodes;
-    std::map<uint64_t, OSMHighway> osm_highways;
-    std::map<uint64_t, OSMBuilding> osm_buildings;
+    CollectAllWays(osm_data);
+    CollectAllNodes(osm_data);
+    CollectAllRelations(osm_data);
+
 
     std::vector<OSMBuildingRelation> osm_relations;
 
@@ -65,7 +68,7 @@ OSMData OSMReader::Load(const char *path)
             osm_node.lat = child.attribute("lat").as_float();
             osm_node.lon = child.attribute("lon").as_float();
             
-            osm_nodes[node_id] = osm_node;
+            osm_data.nodes[node_id] = osm_node;
 
             point_number++;   
         }
@@ -116,7 +119,7 @@ OSMData OSMReader::Load(const char *path)
                     osm_way.refs.push_back(node_ref);
                 }
 
-                osm_highways[osm_way.id] = osm_way;
+                osm_data.ways[osm_way.id] = osm_way;
 
             }else if(is_building){
                 OSMBuilding osm_way;
@@ -132,17 +135,12 @@ OSMData OSMReader::Load(const char *path)
                     osm_way.refs.push_back(node_ref);
                 }
 
-                osm_buildings[osm_way.id] = osm_way;                
+                osm_data.ways[osm_way.id] = osm_way;                
             }
 
         }
  
     }    
-
-    osm_data.nodes = osm_nodes;
-
-    osm_data.highways = osm_highways;    
-    osm_data.buildings = osm_buildings;    
 
 
 
@@ -166,7 +164,7 @@ static TagsMap collect_child_tags(const pugi::xml_node& xml_node)
     return tags;
 }
 
-void OSMReader::CollectAllWays()
+void OSMReader::CollectAllWays(OSMData& data)
 {
     auto all_ways_set = m_XMLDoc.child("osm").select_nodes("way");
     
@@ -191,7 +189,7 @@ void OSMReader::CollectAllWays()
         /* Collect tags */
         osm_way.tags = collect_child_tags(way_node);
 
-        m_AllWays[osm_way.id] = osm_way;
+        data.ways[osm_way.id] = osm_way;
 
         
     }
@@ -200,7 +198,7 @@ void OSMReader::CollectAllWays()
 
 }
 
-void OSMReader::CollectAllNodes()
+void OSMReader::CollectAllNodes(OSMData& data)
 {
 
     std::cout << "Collecting All Nodes ....";
@@ -217,7 +215,8 @@ void OSMReader::CollectAllNodes()
 
         osm_node.lat = node_node.attribute("lat").as_float();
         osm_node.lon = node_node.attribute("lon").as_float();
-        m_AllNodes[osm_node.node_id] = osm_node;
+
+        data.nodes[osm_node.node_id] = osm_node;
 
         pt_index++;
         
@@ -227,7 +226,7 @@ void OSMReader::CollectAllNodes()
     
 }
 
-void OSMReader::CollectAllRelations()
+void OSMReader::CollectAllRelations(OSMData& data)
 {
 
     std::cout << "Collecting All Relations ....";
@@ -283,62 +282,11 @@ void OSMReader::CollectAllRelations()
             relation.tags = collect_child_tags(relation_node);
 
         }
-        m_AllRelations[relation.id] = relation;
+        data.relations[relation.id] = relation;
     }
     std::cout << "OK" << std::endl;
 }
 
-
-
-
-/*
-    std::ostream STUFF
-*/
-
-std::ostream& operator<<(std::ostream& os, const OSMReader& reader)
-{
-    os << "OSM Data ->" << std::endl;
-    os << "\tNum Nodes : "  << reader.m_AllNodes.size() << std::endl;
-    os << "\tNum Ways  : "  << reader.m_AllWays.size() << std::endl;
-    os << "\tNum Relations  : "  << reader.m_AllRelations.size() << std::endl;
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const OSMNode& node)
-{
-    os << "OSM Node "  << node.node_id ;
-    os << " --point_id -> "  << node.point_id << std::endl;
-
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const OSMWay& way)
-{
-    os << "OSM Way "  << way.id << std::endl;
-    os << "\t- Num Refs : "  << way.refs.size() << std::endl;
-    os << "\t- Tags : " << std::endl;
-
-    for(const auto&[key, value] : way.tags)
-    {
-        os << "\t\t" << key << " : " << value << std::endl; 
-    }
-
-    os << "---------------------------"; 
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const OSMRelation& relation)
-{
-    os << "OSM Relation "  << relation.id << std::endl;
-    os << "\t- Members : "  << relation.members.size() << std::endl;
-    os << "\t- Tags : "  << std::endl;
-    for(const auto&[key, value] : relation.tags)
-    {
-        os << "\t\t" << key << " : " << value << std::endl; 
-    }
-    os << "---------------------------" << std::endl;
-    return os;
-}
 
 
 

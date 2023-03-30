@@ -6,15 +6,25 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/OSMData.cpp
     src/OSMReader.cpp
     src/PlyWriter.cpp
     src/BgeoWriter.cpp
+    src/Log.cpp
 )
 
 include_directories(
-    vendor/pugixml/src/
     src/
+    vendor/pugixml/src/
+    vendor/spdlog/include
 )
+target_include_directories(${PROJECT_NAME} PUBLIC
+    src/
+    vendor/pugixml/src/
+    vendor/spdlog/include 
+)
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.h)
 
 # pugixml
 add_subdirectory(vendor/pugixml)

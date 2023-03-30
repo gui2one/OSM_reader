@@ -3,9 +3,6 @@
 
 #pragma once
 #include "PlyWriter.h" /* for OSMMesh*/
-#include <fstream>
-#include <iostream>
-#include <string>
 
 class BgeoWriter
 {
