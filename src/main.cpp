@@ -15,27 +15,32 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
         mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
     }
 
-    for(const auto& way : osm_data.ways)
+    for(const auto& way : osm_data.buildings)
     {
         std::vector<uint32_t> indices;
         for(auto& ref_node : way.second.refs)
         {
-            // std::cout << ref_node << std::endl;
-            
-            try{    
-                auto& node = osm_data.nodes.at(ref_node);
+            try
+            {
+                const OSMNode& node = osm_data.nodes.at(ref_node);
                 indices.push_back(node.point_id);
-                // std::cout << node << std::endl;
+
             }catch(const std::exception& e){
-                std::cout << e.what();
+            
+                std::cout << "Problem while creating face from OSMWay Refs : " << e.what() << std::endl;
             }
         }
+        
         if(indices.size() > 1)
         {
-
-            mesh.faces.push_back(indices);
+            OSMFace face;
+            face.indices = indices;
+            // face.is_building = way.second.is_building;
+            // face.is_road = way.second.is_road;
+            mesh.faces.push_back(face);
         }
     }
+
     return mesh;
 }
 
@@ -43,57 +48,36 @@ int main(int argc, char** argv)
 {
     std::cout << "OSM Reader" << std::endl;
 
-    OSMMesh my_mesh;
-    my_mesh.points = { {0.0f, 0.0f, 0.0f, 0}, {1.0f, 0.0f, 0.0f, 1}};
-    my_mesh.faces = { {0, 1}};
-
-    BgeoWriter bgeo_writer;
-    bgeo_writer.WriteBinary("bgeo_test.bgeo", my_mesh);
-    bgeo_writer.WriteASCII("bgeo_ASCII_test.geo", my_mesh);
-
-    return 0;
-
-
+    std::cout << "Loading Data ..." << std::endl;
     OSMReader reader;
     // OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm");
     OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm");
-
-    OSMMesh mesh;
-
-    for(auto& point : osm_data.nodes)
-    {
-        mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
-    }
-
-    for(const auto& way : osm_data.ways)
-    {
-        std::vector<uint32_t> indices;
-        for(auto& ref_node : way.second.refs)
-        {
-            // std::cout << ref_node << std::endl;
-            
-            try{    
-                auto node = osm_data.nodes.at(ref_node);
-                indices.push_back(node.point_id);
-                // std::cout << node << std::endl;
-            }catch(const std::exception& e){
-                std::cout << e.what();
-            }
-        }
-        if(indices.size() > 1)
-        {
-
-            mesh.faces.push_back(indices);
-        }
-    }
-
-
-
-    PlyWriter ply_writer;
-    // ply_writer.WriteASCII("hello.ply", mesh);
-    ply_writer.WriteBinary("hello_bin.ply", mesh);
+    std::cout << reader;
     
-    std::cout << "num faces : "<< mesh.faces.size() << std::endl;
+    for(const auto& [way_id, way_data] : reader.m_AllWays)
+    {
+        std::cout << (OSMWay)way_data << std::endl;
+        break;
+    }
+
+    if( !osm_data.is_empty)
+    {
+
+        std::cout << "Mesh Convertion ..." << std::endl;
+        auto mesh = OSMDataToMesh(osm_data);
+
+        PlyWriter ply_writer;
+        // ply_writer.WriteASCII("hello_ascii.ply", mesh);
+        ply_writer.WriteBinary("hello_bin.ply", mesh);
+
+        std::cout << "num faces : "<< mesh.faces.size() << std::endl;
+
+    }else{
+
+        std::cout << "OSMData is empty" << std::endl;
+        
+    }
+    
     
     return 0;
 }

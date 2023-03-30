@@ -29,6 +29,7 @@ void PlyWriter::WriteASCII(const char *path, OSMMesh &osm_mesh)
 
     ss << "element face " << osm_mesh.faces.size() << std::endl;
     ss << "property list uchar uint vertex_index" << std::endl;
+    ss << "property uint is_building" << std::endl;
     ss << "end_header" << std::endl;
 
     /* sort vertices by point_id */
@@ -49,17 +50,20 @@ void PlyWriter::WriteASCII(const char *path, OSMMesh &osm_mesh)
     for(const auto& face : osm_mesh.faces)
     {
         /* first num in the line is the number of indices of the polygon */
-        ss << face.size() << " ";
-        for(auto& index : face)
+        ss << face.indices.size() << " ";
+        for(auto& index : face.indices)
         {
             ss << std::fixed;
             ss << std::setprecision(20);
             ss << index << " ";
         }
 
+
         /* repeat first vertex to close ? */
         // ss << face[0];
 
+        /* is_building */
+        ss << (uint32_t)42;
         ss << std::endl;
     }
 
@@ -99,6 +103,8 @@ void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
 
     ss << "element face " << osm_mesh.faces.size() << std::endl;
     ss << "property list uint uint vertex_index" << std::endl;
+    ss << "property uint is_building" << std::endl;
+    ss << "property uint is_road" << std::endl;
     ss << "end_header" << std::endl;
     
     out_file << ss.rdbuf();
@@ -117,15 +123,20 @@ void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
     for(auto& face : osm_mesh.faces)
     {
         /* first write number of vertices in this face */
-        uint32_t num_verts = (uint32_t)face.size();
+        uint32_t num_verts = (uint32_t)face.indices.size();
         out_file.write(reinterpret_cast<char*>(&num_verts), sizeof(num_verts));
 
         /* then write the face vertices indices */
-        for(auto& index : face )
+        for(auto& index : face.indices )
         {
             out_file.write(reinterpret_cast<char*>(&index), sizeof(index));
         }
 
+        uint32_t is_building = face.is_building ? 1 : 0;
+        out_file.write(reinterpret_cast<char*>(&is_building), sizeof(is_building));
+
+        uint32_t is_road = face.is_road ? 1 : 0;
+        out_file.write(reinterpret_cast<char*>(&is_road), sizeof(is_road));
     }
 
     out_file << std::endl;

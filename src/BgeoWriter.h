@@ -20,6 +20,10 @@ public:
     void write_header_ascii(std::ostream& output, OSMMesh& mesh);
     void write_info_ascii(std::ostream& output, OSMMesh& mesh);
     void write_topology_ascii(std::ostream& output, OSMMesh& mesh);
+
+
+    void write_attributes_ascii(std::ostream& output, OSMMesh& mesh);
+    void write_point_attributes_ascii(std::ostream& output, OSMMesh& mesh);
 private:
 
 };

@@ -17,9 +17,21 @@ struct OSMPoint{
     // uint32_t node_id;
     uint32_t point_id;
 };
+
+struct OSMFace
+{
+    std::vector<uint32_t> indices;
+    bool is_road = false;
+    uint32_t road__lanes = 1;
+
+    bool is_building = false;
+    float building__height = 0.0f;
+
+};
+
 struct OSMMesh{
     std::vector<OSMPoint> points;
-    std::vector<std::vector<uint32_t>> faces;
+    std::vector<OSMFace> faces;
 };
 
 class PlyWriter
