@@ -1,20 +1,6 @@
 #include "OSMReader.h"
 
 
-bool OSMWay::HasTag(const char* tag_key)
-{
-    for(std::map<const char*, const char*>::iterator it = tags.begin(); it != tags.end(); ++it)
-    {
-        if(strcmp(tag_key, it->first) == 0) 
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
 OSMReader::OSMReader()
 {
 
@@ -32,7 +18,7 @@ OSMData OSMReader::Load(fs::path path)
     {
 
     }
-    
+
     pugi::xml_parse_result result = m_XMLDoc.load_file(path.string().c_str());
 
     if (!result)
@@ -48,100 +34,6 @@ OSMData OSMReader::Load(fs::path path)
     CollectAllWays(osm_data);
     CollectAllNodes(osm_data);
     CollectAllRelations(osm_data);
-
-
-    std::vector<OSMBuildingRelation> osm_relations;
-
-    auto all_xml_nodes = m_XMLDoc.child("osm").children();
-    uint32_t point_number = 0;
-    for( const auto& child : all_xml_nodes)
-    {
-        
-        if(strcmp(child.name(), "node") == 0)
-        {
-
-            uint64_t node_id =  (uint64_t)child.attribute("id").as_ullong();
-
-            OSMNode osm_node;
-            osm_node.node_id = node_id;
-            osm_node.point_id = point_number;
-            osm_node.lat = child.attribute("lat").as_float();
-            osm_node.lon = child.attribute("lon").as_float();
-            
-            osm_data.nodes[node_id] = osm_node;
-
-            point_number++;   
-        }
-
-        if(strcmp(child.name(), "way") == 0)
-        {        
-            pugi::xpath_node_set tags_set = child.select_nodes("tag");
-            bool is_highway = false;
-            bool is_building = false;
-            for(const auto& tag : tags_set){
-                auto& tag_node = tag.node();
-                const char* tag_key = tag_node.attribute("k").as_string();
-                const char* tag_value = tag_node.attribute("v").value();
-                // std::cout << tag_key << std::endl;
-                
-                if(strcmp(tag_key, "highway") == 0)
-                {
-                    is_highway = true;
-                    break;
-                }
-                // if(strcmp(tag_key, "building") == 0 && strcmp(tag_value, "yes") == 0 )
-                // {
-                //     is_building = true;
-                //     break;
-                // }
-                if(strcmp(tag_key, "building") == 0 )
-                {
-                    is_building = true;
-                    break;
-                }
-
-            }
-
-            /* ---------------- */
-
-            if( is_highway)
-            {
-                OSMHighway osm_way;
-                
-                
-                osm_way.id = child.attribute("id").as_ullong();
-                pugi::xpath_node_set nd_set = child.select_nodes("nd");
-                nd_set.sort(false);
-                for(pugi::xpath_node nd_xpath : nd_set)
-                {
-                    auto nd_node = nd_xpath.node();
-                    auto node_ref = nd_node.attribute("ref").as_llong();
-                    osm_way.refs.push_back(node_ref);
-                }
-
-                osm_data.ways[osm_way.id] = osm_way;
-
-            }else if(is_building){
-                OSMBuilding osm_way;
-                
-                
-                osm_way.id = child.attribute("id").as_ullong();
-                pugi::xpath_node_set nd_set = child.select_nodes("nd");
-                nd_set.sort(false);
-                for(pugi::xpath_node nd_xpath : nd_set)
-                {
-                    auto nd_node = nd_xpath.node();
-                    auto node_ref = nd_node.attribute("ref").as_llong();
-                    osm_way.refs.push_back(node_ref);
-                }
-
-                osm_data.ways[osm_way.id] = osm_way;                
-            }
-
-        }
- 
-    }    
-
 
 
     return osm_data;

@@ -1,6 +1,34 @@
 #include "OSMData.h"
 
 
+
+
+
+
+bool OSMWay::HasTag(const char* tag_key)
+{
+    for(std::map<const char*, const char*>::iterator it = tags.begin(); it != tags.end(); ++it)
+    {
+        if(strcmp(tag_key, it->first) == 0) 
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+OSMData::OSMData()
+{
+
+}
+
+OSMData::~OSMData()
+{
+
+}
+
 std::ostream& operator<<(std::ostream& os, const OSMNode& node)
 {
     os << "OSM Node "  << node.node_id ;
@@ -50,15 +78,4 @@ std::ostream& operator<<(std::ostream& os, const OSMData& data)
     os << "\tNum Ways  : "  << data.ways.size() << std::endl;
     os << "\tNum Relations  : "  << data.relations.size() << std::endl;
     return os;
-}
-
-
-OSMData::OSMData()
-{
-
-}
-
-OSMData::~OSMData()
-{
-
 }

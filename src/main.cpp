@@ -14,30 +14,35 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
         mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
     }
 
-    for(const auto& way : osm_data.ways)
-    {
-        std::vector<uint32_t> indices;
-        for(auto& ref_node : way.second.refs)
-        {
-            try
-            {
-                const OSMNode& node = osm_data.nodes.at(ref_node);
-                indices.push_back(node.point_id);
+    // for(const auto& way : osm_data.ways)
+    // {
+    //     std::vector<uint32_t> indices;
+    //     for(auto& ref_node : way.second.refs)
+    //     {
+    //         try
+    //         {
+    //             const OSMNode& node = osm_data.nodes.at(ref_node);
+    //             indices.push_back(node.point_id);
 
-            }catch(const std::exception& e){
+    //         }catch(const std::exception& e){
             
-                LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
-            }
-        }
+    //             LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
+    //         }
+    //     }
 
-        if(indices.size() > 1)
-        {
-            OSMFace face;
-            face.indices = indices;
-            // face.is_building = way.second.is_building;
-            // face.is_road = way.second.is_road;
-            mesh.faces.push_back(face);
-        }
+    //     if(indices.size() > 1)
+    //     {
+    //         OSMFace face;
+    //         face.indices = indices;
+    //         // face.is_building = way.second.is_building;
+    //         // face.is_road = way.second.is_road;
+    //         mesh.faces.push_back(face);
+    //     }
+    // }
+
+    for(const auto& relation : osm_data.relations)
+    {
+        
     }
 
     return mesh;
