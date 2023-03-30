@@ -292,7 +292,7 @@ void OSMReader::CollectAllRelations()
 
 
 /*
-    std::ostream OPERATOR<< STUFF
+    std::ostream STUFF
 */
 
 std::ostream& operator<<(std::ostream& os, const OSMReader& reader)
@@ -317,17 +317,6 @@ std::ostream& operator<<(std::ostream& os, const OSMWay& way)
     os << "OSM Way "  << way.id;
     os << " --Num Refs -> "  << way.refs.size() << std::endl;
 
-    for(const auto&[key, value] : way.tags)
-    {
-        os << "\t\t" << key << " : " << value << std::endl; 
-    }
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, OSMWay& way)
-{
-    os << "OSM Way "  << way.id;
-    os << " --Num Refs -> "  << way.refs.size() << std::endl;
     for(const auto&[key, value] : way.tags)
     {
         os << "\t\t" << key << " : " << value << std::endl; 
