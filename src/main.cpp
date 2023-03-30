@@ -30,7 +30,7 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
                 std::cout << "Problem while creating face from OSMWay Refs : " << e.what() << std::endl;
             }
         }
-        
+
         if(indices.size() > 1)
         {
             OSMFace face;
@@ -60,23 +60,29 @@ int main(int argc, char** argv)
         break;
     }
 
-    if( !osm_data.is_empty)
+    for(const auto& [id, data] : reader.m_AllRelations)
     {
+        std::cout << (OSMRelation)data << std::endl;
+        break;
+    }    
 
-        std::cout << "Mesh Convertion ..." << std::endl;
-        auto mesh = OSMDataToMesh(osm_data);
+    // if( !osm_data.is_empty)
+    // {
 
-        PlyWriter ply_writer;
-        // ply_writer.WriteASCII("hello_ascii.ply", mesh);
-        ply_writer.WriteBinary("hello_bin.ply", mesh);
+    //     std::cout << "Mesh Convertion ..." << std::endl;
+    //     auto mesh = OSMDataToMesh(osm_data);
 
-        std::cout << "num faces : "<< mesh.faces.size() << std::endl;
+    //     PlyWriter ply_writer;
+    //     // ply_writer.WriteASCII("hello_ascii.ply", mesh);
+    //     ply_writer.WriteBinary("hello_bin.ply", mesh);
 
-    }else{
+    //     std::cout << "num faces : "<< mesh.faces.size() << std::endl;
 
-        std::cout << "OSMData is empty" << std::endl;
+    // }else{
+
+    //     std::cout << "OSMData is empty" << std::endl;
         
-    }
+    // }
     
     
     return 0;

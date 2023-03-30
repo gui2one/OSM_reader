@@ -8,6 +8,8 @@
 #include "pugixml.hpp"
 #include "PlyWriter.h"
 
+
+using TagsMap = std::map<const char*, const char*>;
 struct OSMNode
 {
     uint64_t node_id;
@@ -26,7 +28,31 @@ struct OSMWay
 
     friend std::ostream& operator<<(std::ostream& output, const OSMWay& osm_way);
 
+    bool HasTag(const char* tag_key);
 };
+
+enum class OSMRelationMemberType{
+    Way,
+    Node,
+    Relation
+};
+
+struct OSMRelationMember
+{
+    OSMRelationMemberType type;
+    uint64_t ref_id;
+    const char* role;
+};
+
+struct OSMRelation
+{
+    uint64_t id;
+    std::vector<OSMRelationMember> members;
+    std::map<const char*, const char*> tags;
+
+    friend std::ostream& operator<<(std::ostream& output, const OSMRelation& relation);
+};
+
 
 struct OSMBuilding : public OSMWay
 {
@@ -60,6 +86,7 @@ class OSMReader
 public:
     std::map<uint64_t, OSMNode> m_AllNodes;
     std::map<uint64_t, OSMWay> m_AllWays;
+    std::map<uint64_t, OSMRelation> m_AllRelations;
 public:
     OSMReader();
     ~OSMReader();
@@ -68,6 +95,7 @@ public:
 
     void CollectAllWays();
     void CollectAllNodes();
+    void CollectAllRelations();
 
     friend std::ostream& operator<<(std::ostream& output, const OSMReader& reader);
 private:

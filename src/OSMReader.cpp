@@ -1,6 +1,18 @@
 #include "OSMReader.h"
 
 
+bool OSMWay::HasTag(const char* tag_key)
+{
+    for(std::map<const char*, const char*>::iterator it = tags.begin(); it != tags.end(); ++it)
+    {
+        if(strcmp(tag_key, it->first) == 0) 
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 
 OSMReader::OSMReader()
@@ -26,8 +38,9 @@ OSMData OSMReader::Load(const char *path)
         return empty_data;
     }
         
-    CollectAllWays();   
-    CollectAllNodes();   
+    CollectAllWays();
+    CollectAllNodes();
+    CollectAllRelations();
 
     OSMData osm_data;
     std::map<uint64_t, OSMNode> osm_nodes;
@@ -136,6 +149,23 @@ OSMData OSMReader::Load(const char *path)
     return osm_data;
 }
 
+static TagsMap collect_child_tags(const pugi::xml_node& xml_node)
+{
+    auto tags_set = xml_node.select_nodes("tag");
+
+    TagsMap tags;
+    for(const auto& tag_item : tags_set)
+    {   
+        auto& tag_node = tag_item.node();
+        auto key = tag_node.attribute("k").as_string();
+        auto value = tag_node.attribute("v").as_string();
+
+        tags[key] = value;
+    }
+
+    return tags;
+}
+
 void OSMReader::CollectAllWays()
 {
     auto all_ways_set = m_XMLDoc.child("osm").select_nodes("way");
@@ -156,18 +186,13 @@ void OSMReader::CollectAllWays()
             osm_way.refs.push_back(ref_id);
         } 
 
-        auto tags_set = way_node.select_nodes("tag");
-        for(const auto& tag_item : tags_set)
-        {
-            auto& tag_node = tag_item.node();
-            auto key = tag_node.attribute("k").as_string();
-            auto value = tag_node.attribute("v").as_string();
-            osm_way.tags[key] = value;
-        }
+
+
+        /* Collect tags */
+        osm_way.tags = collect_child_tags(way_node);
 
         m_AllWays[osm_way.id] = osm_way;
 
-        // std::cout << "adding way" << std::endl;
         
     }
 
@@ -202,20 +227,87 @@ void OSMReader::CollectAllNodes()
     
 }
 
+void OSMReader::CollectAllRelations()
+{
+
+    std::cout << "Collecting All Relations ....";
+    
+    auto all_relations_set = m_XMLDoc.child("osm").select_nodes("relation");
+
+    for(const auto& relation_item : all_relations_set)
+    {
+        auto& relation_node = relation_item.node();
+
+        uint64_t id = relation_node.attribute("id").as_ullong();
+        OSMRelation relation;
+        relation.id = id;
+
+        auto members_set = relation_node.select_nodes("member");
+
+        for(const auto& member_item : members_set)
+        {
+            auto& member_node = member_item.node();
+            auto member_type = member_node.attribute("type").as_string();
+            if(strcmp(member_type, "node") == 0){
+
+                OSMRelationMember member;
+                member.type = OSMRelationMemberType::Node;
+                member.ref_id = member_node.attribute("ref").as_ullong();
+                member.role = member_node.attribute("role").as_string();
+                
+                relation.members.push_back(member);
+
+            }else if(strcmp(member_type, "way") == 0){
+
+
+                OSMRelationMember member;
+                member.type = OSMRelationMemberType::Way;
+                member.ref_id = member_node.attribute("ref").as_ullong();
+                member.role = member_node.attribute("role").as_string();
+                
+                relation.members.push_back(member);                
+
+            }else if(strcmp(member_type, "relation") == 0){
+
+
+                OSMRelationMember member;
+                member.type = OSMRelationMemberType::Relation;
+                member.ref_id = member_node.attribute("ref").as_ullong();
+                member.role = member_node.attribute("role").as_string();
+                
+                relation.members.push_back(member);                
+            }
+
+            /* collect tags */
+
+            relation.tags = collect_child_tags(relation_node);
+
+        }
+        m_AllRelations[relation.id] = relation;
+    }
+    std::cout << "OK" << std::endl;
+}
+
+
+
+
+/*
+    std::ostream OPERATOR<< STUFF
+*/
+
 std::ostream& operator<<(std::ostream& os, const OSMReader& reader)
 {
     os << "OSM Data ->" << std::endl;
     os << "\tNum Nodes : "  << reader.m_AllNodes.size() << std::endl;
     os << "\tNum Ways  : "  << reader.m_AllWays.size() << std::endl;
+    os << "\tNum Relations  : "  << reader.m_AllRelations.size() << std::endl;
     return os;
 }
 
-
-
-std::ostream& operator<<(std::ostream& os, const OSMNode& self)
+std::ostream& operator<<(std::ostream& os, const OSMNode& node)
 {
-    os << "OSM Node "  << self.node_id ;
-    os << " --point_id -> "  << self.point_id << std::endl;
+    os << "OSM Node "  << node.node_id ;
+    os << " --point_id -> "  << node.point_id << std::endl;
 
     return os;
 }
@@ -224,12 +316,14 @@ std::ostream& operator<<(std::ostream& os, const OSMWay& way)
 {
     os << "OSM Way "  << way.id;
     os << " --Num Refs -> "  << way.refs.size() << std::endl;
+
     for(const auto&[key, value] : way.tags)
     {
         os << "\t\t" << key << " : " << value << std::endl; 
     }
     return os;
 }
+
 std::ostream& operator<<(std::ostream& os, OSMWay& way)
 {
     os << "OSM Way "  << way.id;
@@ -240,3 +334,19 @@ std::ostream& operator<<(std::ostream& os, OSMWay& way)
     }
     return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const OSMRelation& relation)
+{
+    os << "OSM Relation "  << relation.id << std::endl;
+    os << "\t-Members : "  << relation.members.size() << std::endl;
+    os << "\t-Tags : "  << std::endl;
+    for(const auto&[key, value] : relation.tags)
+    {
+        os << "\t\t" << key << " : " << value << std::endl; 
+    }
+    os << "---------------------------" << std::endl;
+    return os;
+}
+
+
+
