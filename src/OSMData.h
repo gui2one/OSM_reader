@@ -2,6 +2,7 @@
 #define OSMDATA_H
 #pragma once
 
+#include <spdlog/fmt/ostr.h>
 
 using TagsMap = std::map<const char*, const char*>;
 struct OSMNode

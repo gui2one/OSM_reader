@@ -40,8 +40,8 @@ public:
     PlyWriter();
     ~PlyWriter();
 
-    void WriteASCII(const char* path, OSMMesh& osm_mesh);
-    void WriteBinary(const char* path, OSMMesh& osm_mesh);
+    void WriteASCII(fs::path path, OSMMesh& osm_mesh);
+    void WriteBinary(fs::path path, OSMMesh& osm_mesh);
 private:
 
 };

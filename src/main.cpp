@@ -6,6 +6,7 @@
 
 OSMMesh OSMDataToMesh(const OSMData& osm_data)
 {
+    LOG_INFO("Converting to mesh");
     OSMMesh mesh;
 
     for(auto& point : osm_data.nodes)
@@ -25,7 +26,7 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
 
             }catch(const std::exception& e){
             
-                std::cout << "Problem while creating face from OSMWay Refs : " << e.what() << std::endl;
+                LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
             }
         }
 
@@ -47,36 +48,55 @@ int main(int argc, char** argv)
 
     GOSM::Log::Init();
 
-    LOG_INFO("Logging or what ?");
-    std::cout << "OSM Reader" << std::endl;
+    fs::path osm_file_path;
+    fs::path output_mesh_file;
 
-    std::cout << "Loading Data ..." << std::endl;
-    OSMReader reader;
-    // OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm");
-    OSMData osm_data = reader.Load("C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm");
-    std::cout << osm_data;
-    
-    for(const auto& [way_id, way_data] : osm_data.ways)
+    if(argc > 1)
     {
-        std::cout << (OSMWay)way_data << std::endl;
-        break;
+        osm_file_path = argv[1];
+    }else{
+        osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm";
     }
 
-    for(const auto& [id, data] : osm_data.relations)
+    if( argc > 3 )
     {
-        std::cout << (OSMRelation)data << std::endl;
-        break;
-    }    
+        if(strcmp(argv[2], "-o") == 0)
+        {
+            output_mesh_file = argv[3];
+        }
+    }else{
+        output_mesh_file = "hello_bin.ply";
+    }
+
+
+    LOG_INFO("Loading Data from {}", osm_file_path.filename());
+    OSMReader reader;
+
+    OSMData osm_data = reader.Load(osm_file_path);
+
+    LOG_INFO(osm_data);
+    
+    // for(const auto& [way_id, way_data] : osm_data.ways)
+    // {
+    //     std::cout << (OSMWay)way_data << std::endl;
+    //     break;
+    // }
+
+    // for(const auto& [id, data] : osm_data.relations)
+    // {
+    //     std::cout << (OSMRelation)data << std::endl;
+    //     break;
+    // }    
 
     if( !osm_data.is_empty)
     {
 
-        std::cout << "Mesh Convertion ..." << std::endl;
+       
         auto mesh = OSMDataToMesh(osm_data);
 
         PlyWriter ply_writer;
         // ply_writer.WriteASCII("hello_ascii.ply", mesh);
-        ply_writer.WriteBinary("hello_bin.ply", mesh);
+        ply_writer.WriteBinary(output_mesh_file, mesh);
 
         std::cout << "num points : "<< mesh.points.size() << std::endl;
         std::cout << "num faces : "<< mesh.faces.size() << std::endl;

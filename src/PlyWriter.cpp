@@ -10,7 +10,7 @@ PlyWriter::~PlyWriter()
 
 }
 
-void PlyWriter::WriteASCII(const char *path, OSMMesh &osm_mesh)
+void PlyWriter::WriteASCII(fs::path path, OSMMesh &osm_mesh)
 {
     std::ofstream out_file(path);
 
@@ -85,7 +85,7 @@ struct test_struct
 
 
 
-void PlyWriter::WriteBinary(const char *path, OSMMesh &osm_mesh)
+void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
 {
 
     std::ofstream out_file(path, std::ios::binary | std::ios::out);
