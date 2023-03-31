@@ -5,9 +5,39 @@
 #include "OSMReader.h"
 #include "Utils.h"
 
+#include <set>
+
 using Utils::str_is_equal;
 
-OSMMesh OSMDataToMesh(const OSMData& osm_data)
+
+void clean_ways(std::map<uint64_t, OSMWay>& ways_map, std::map<uint64_t, OSMRelation>& relations_map)
+{
+    std::cout << "Fuck !!!!" << std::endl;
+
+    std::set<uint64_t> in_relation_already;
+
+    for(const auto& [id, relation] : relations_map)
+    {
+        for(const auto& member : relation.members)
+        {
+            if( member.type == OSMRelationMemberType::Way)
+            {
+                in_relation_already.insert(member.ref_id);
+            }   
+        }
+    }
+
+    for(auto&[id, way] : ways_map)
+    {
+        const bool is_in = in_relation_already.find(id) != in_relation_already.end();
+        if( is_in)
+        {
+            ways_map.erase(id);
+        }
+    }
+    
+}
+OSMMesh OSMDataToMesh(OSMData& osm_data)
 {
     LOG_INFO("Converting to mesh");
     OSMMesh mesh;
@@ -17,34 +47,8 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
         mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
     }
 
-    for(const auto& [way_id, way] : osm_data.ways)
-    {
-        std::vector<uint32_t> indices;
-        for(auto& ref_node : way.refs)
-        {
-            try
-            {
-                const OSMNode& node = osm_data.nodes.at(ref_node);
-                indices.push_back(node.point_id);
 
-            }catch(const std::exception& e){
-            
-                // LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
-            }
-        }
-
-        if(indices.size() > 1)
-        {
-            OSMFace face;
-            face.indices = indices;
-            face.is_building = way.is_building;
-            face.is_road = way.is_road;
-            mesh.faces.push_back(face);
-            // LOG_INFO("Pushing Building Way {}", way_id);
-        }
-    }
-
-    for(const auto& [id, relation] : osm_data.relations)
+    for(auto& [id, relation] : osm_data.relations)
     {
 
         if(relation.IsBuildingType())
@@ -133,6 +137,36 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
             }            
         }
     
+    }
+
+    /* clean ways before constructing, because they might already be in a relation */
+    clean_ways(osm_data.ways, osm_data.relations);
+
+    for(const auto& [way_id, way] : osm_data.ways)
+    {
+        std::vector<uint32_t> indices;
+        for(auto& ref_node : way.refs)
+        {
+            try
+            {
+                const OSMNode& node = osm_data.nodes.at(ref_node);
+                indices.push_back(node.point_id);
+
+            }catch(const std::exception& e){
+            
+                // LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
+            }
+        }
+
+        if(indices.size() > 1)
+        {
+            OSMFace face;
+            face.indices = indices;
+            face.is_building = way.is_building;
+            face.is_road = way.is_road;
+            mesh.faces.push_back(face);
+            // LOG_INFO("Pushing Building Way {}", way_id);
+        }
     }
 
     return mesh;
