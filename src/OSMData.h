@@ -6,7 +6,7 @@
 #include "Utils.h"
 
 
-using TagsMap = std::map<const char*, const char*>;
+using TagsMap = std::map<std::string, std::string>;
 
 struct OSMNode
 {
@@ -22,7 +22,7 @@ struct OSMWay
 {
     uint64_t id;
     std::vector<uint64_t> refs;
-    std::map<const char*, const char*> tags;
+    TagsMap tags;
 
     bool is_building = false;
     bool is_road = false;
@@ -32,7 +32,7 @@ struct OSMWay
     friend std::ostream& operator<<(std::ostream& output, const OSMWay& osm_way);
 
     bool HasTag(const char* tag_key);
-    char* GetTagValue(const char* tag_key);
+    std::string GetTagValue(const char* tag_key);
 };
 
 enum class OSMRelationMemberType{

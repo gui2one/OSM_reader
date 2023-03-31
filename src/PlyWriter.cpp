@@ -109,6 +109,7 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     ss << "property uint road__lanes" << std::endl;
     ss << "property uint is_multipolygon" << std::endl;
     ss << "property uint is_inner" << std::endl;
+    ss << "property uint is_outline" << std::endl;
     ss << "end_header" << std::endl;
     
     out_file << ss.rdbuf();
@@ -117,9 +118,10 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     std::sort(osm_mesh.points.begin(), osm_mesh.points.end(), [](OSMPoint& pt1, OSMPoint& pt2){
         return (pt1.point_id < pt2.point_id);
     });
-
+    
     for(auto& pt : osm_mesh.points)
     {
+        out_file << std::setprecision(20);
         out_file.write(reinterpret_cast<char*>(&pt), sizeof(pt));
     }
     
@@ -128,6 +130,7 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     {
         /* first write number of vertices in this face */
         uint32_t num_verts = (uint32_t)face.indices.size();
+
         out_file.write(reinterpret_cast<char*>(&num_verts), sizeof(num_verts));
 
         /* then write the face vertices indices */
@@ -147,6 +150,8 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
         WriteFaceAttribute(out_file, face.is_multipolygon);
 
         WriteFaceAttribute(out_file, face.is_inner);
+
+        WriteFaceAttribute(out_file, face.is_outline);
     }
 
     out_file << std::endl;

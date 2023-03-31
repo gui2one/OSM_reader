@@ -80,8 +80,15 @@ void OSMReader::CollectAllNodes(OSMData& data)
         osm_node.node_id = (uint64_t)node_node.attribute("id").as_ullong();
         osm_node.point_id = pt_index;
 
-        osm_node.lat = node_node.attribute("lat").as_float();
-        osm_node.lon = node_node.attribute("lon").as_float();
+        auto string_lat = std::string(node_node.attribute("lat").value());
+
+        osm_node.lat = (float)(node_node.attribute("lat").as_double());
+        osm_node.lon = (float)(node_node.attribute("lon").as_double());
+        
+        // std::cout << string_lat << std::endl;
+        // std::cout << std::fixed << osm_node.lat << std::endl;
+        // std::cout << "---------------------------------------" << std::endl;
+        
 
         data.nodes[osm_node.node_id] = osm_node;
 
@@ -124,7 +131,7 @@ void OSMReader::CollectAllWays(OSMData& data)
             if(osm_way.HasTag("height"))
             {
                 try{
-                    float val = std::atof(osm_way.GetTagValue("height"));
+                    float val = std::atof(osm_way.GetTagValue("height").c_str());
 
                     // LOG_INFO("Tags Size : {}", osm_way.tags.size());
                     
@@ -204,7 +211,26 @@ void OSMReader::CollectAllRelations(OSMData& data)
             relation.tags = collect_child_tags(relation_node);
 
         }
-        data.relations[relation.id] = relation;
+        
+
+        /* try and filter building:part relations, they seem to cause troubles */
+        bool is_building_part = false;
+        try{
+            auto building_part_value = relation.tags.at("building:part");
+            if( building_part_value == "no")
+            {
+                is_building_part = true;
+                // LOG_INFO("is building part");
+            }
+        }catch(std::exception e)
+        {
+
+        }
+
+        if( !is_building_part)
+        {
+            data.relations[relation.id] = relation;
+        }
     }
     LOG_INFO("Collected All Relations : {}", data.relations.size());
 }

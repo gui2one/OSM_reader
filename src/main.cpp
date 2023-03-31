@@ -32,7 +32,14 @@ void clean_ways(std::map<uint64_t, OSMWay>& ways_map, std::map<uint64_t, OSMRela
         {
             ways_map.erase(id);
         }
+
+        if( way.GetTagValue("building:part") == std::string("yes"))
+        {
+            ways_map.erase(id);
+        }
     }
+
+
     
 }
 OSMMesh OSMDataToMesh(OSMData& osm_data)
@@ -62,7 +69,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
                 if(member.type == OSMRelationMemberType::Way)
                 {
                     uint64_t ref_way_id = member.ref_id;
-
+                    const char * role = member.role;
                     try
                     {
                         const OSMWay& way = osm_data.ways.at(ref_way_id);
@@ -72,6 +79,10 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
                             const OSMNode& node = osm_data.nodes.at(node_ref);
                             indices.push_back(node.point_id);
 
+                        }
+                        if(str_is_equal("outline", role))
+                        {
+                            face.is_outline = true;
                         }
 
                         face.indices = indices;
@@ -183,8 +194,8 @@ int main(int argc, char** argv)
     {
         osm_file_path = argv[1];
     }else{
-        // osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm";
-        osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_02.osm";
+        osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm";
+        // osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_02.osm";
     }
 
     if( argc > 3 )

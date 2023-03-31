@@ -6,9 +6,9 @@ using Utils::str_is_equal;
 
 bool OSMWay::HasTag(const char* tag_key)
 {
-    for(std::map<const char*, const char*>::iterator it = tags.begin(); it != tags.end(); ++it)
+    for(TagsMap::const_iterator it = tags.begin(); it != tags.end(); ++it)
     {
-        if(str_is_equal(tag_key, it->first)) 
+        if(str_is_equal(tag_key, it->first.c_str())) 
         {
             return true;
         }
@@ -17,17 +17,17 @@ bool OSMWay::HasTag(const char* tag_key)
     return false;
 }
 
-char *OSMWay::GetTagValue(const char *tag_key)
+std::string OSMWay::GetTagValue(const char *tag_key)
 {
-    for(std::map<const char*, const char*>::iterator it = tags.begin(); it != tags.end(); ++it)
+    for(TagsMap::const_iterator it = tags.begin(); it != tags.end(); ++it)
     {
-        if(str_is_equal(tag_key, it->first)) 
+        if(str_is_equal(tag_key, it->first.c_str())) 
         {
-            return (char*)it->second;
+            return it->second;
         }
     }
 
-    return "";
+    return std::string("");
 }
 
 OSMRelation::OSMRelation()
@@ -42,10 +42,10 @@ bool OSMRelation::HasTag(const char* tag_key) const
 {
     for(TagsMap::const_iterator it = tags.begin(); it != tags.end(); ++it)
     {
-        if(str_is_equal(tag_key, it->first)) 
+        if(std::string(tag_key) ==  it->first) 
         {
             return true;
-        }
+        }        
     }
 
     return false;
@@ -54,7 +54,7 @@ bool OSMRelation::IsBuildingType() const
 {
     for(const auto& [key, value]: tags)
     {
-        if( str_is_equal(key, "type") && str_is_equal(value, "building") )
+        if( (key == "type") && (value == "building"))
         {
             return true;
         }
@@ -66,7 +66,7 @@ bool OSMRelation::IsMultipolygonType() const
 {
     for(const auto& [key, value]: tags)
     {
-        if( str_is_equal(key, "type")  && str_is_equal(value, "multipolygon") )
+        if( key == "type"  && value == "multipolygon")
         {
             return true;
         }

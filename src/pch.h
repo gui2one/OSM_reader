@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <filesystem>
+#include <string>
 
 #include "Log.h"
 
