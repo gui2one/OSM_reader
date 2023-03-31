@@ -15,4 +15,6 @@ namespace fs = std::filesystem;
 
 using TagsMap = std::map<const char*, const char*>;
 
+
+
 #endif /* OSM_READER_PCH_H */

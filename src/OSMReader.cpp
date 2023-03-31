@@ -1,5 +1,6 @@
 #include "OSMReader.h"
 
+using Utils::str_is_equal;
 
 OSMReader::OSMReader()
 {
@@ -143,7 +144,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
         {
             auto& member_node = member_item.node();
             auto member_type = member_node.attribute("type").as_string();
-            if(strcmp(member_type, "node") == 0){
+            if(str_is_equal(member_type, "node")){
 
                 OSMRelationMember member;
                 member.type = OSMRelationMemberType::Node;
@@ -152,7 +153,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
                 
                 relation.members.push_back(member);
 
-            }else if(strcmp(member_type, "way") == 0){
+            }else if(str_is_equal(member_type, "way")){
 
 
                 OSMRelationMember member;
@@ -162,7 +163,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
                 
                 relation.members.push_back(member);                
 
-            }else if(strcmp(member_type, "relation") == 0){
+            }else if(str_is_equal(member_type, "relation")){
 
 
                 OSMRelationMember member;

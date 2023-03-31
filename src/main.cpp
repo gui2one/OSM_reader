@@ -3,6 +3,9 @@
 #include "BgeoWriter.h"
 
 #include "OSMReader.h"
+#include "Utils.h"
+
+using Utils::str_is_equal;
 
 OSMMesh OSMDataToMesh(const OSMData& osm_data)
 {
@@ -93,7 +96,7 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
                 if(member.type == OSMRelationMemberType::Way)
                 {
                     uint64_t ref_way_id = member.ref_id;
-
+                    const char * role = member.role;
                     try
                     {
                         const OSMWay& way = osm_data.ways.at(ref_way_id);
@@ -106,6 +109,7 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
                         }
 
                         face.indices = indices;
+                        face.role = role;
                         mesh.faces.push_back(face);                        
                         LOG_INFO("building relation : Pushed indices");
                     }catch(const std::exception& e){
@@ -140,7 +144,7 @@ int main(int argc, char** argv)
 
     if( argc > 3 )
     {
-        if(strcmp(argv[2], "-o") == 0)
+        if(str_is_equal(argv[2], "-o"))
         {
             output_mesh_file = argv[3];
         }

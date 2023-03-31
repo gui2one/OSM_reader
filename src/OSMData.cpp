@@ -1,15 +1,14 @@
 #include "OSMData.h"
 
 
-
-
+using Utils::str_is_equal;
 
 
 bool OSMWay::HasTag(const char* tag_key)
 {
     for(std::map<const char*, const char*>::iterator it = tags.begin(); it != tags.end(); ++it)
     {
-        if(strcmp(tag_key, it->first) == 0) 
+        if(str_is_equal(tag_key, it->first)) 
         {
             return true;
         }
@@ -23,10 +22,7 @@ bool OSMRelation::IsBuildingType() const
 {
     for(const auto& [key, value]: tags)
     {
-        if(
-            strcmp(key, "type") == 0 
-         && strcmp(value, "building") == 0
-        )
+        if( str_is_equal(key, "type") && str_is_equal(value, "building") )
         {
             return true;
         }
@@ -38,10 +34,7 @@ bool OSMRelation::IsMultipolygonType() const
 {
     for(const auto& [key, value]: tags)
     {
-        if(
-            strcmp(key, "type") == 0 
-         && strcmp(value, "multipolygon") == 0
-        )
+        if( str_is_equal(key, "type")  && str_is_equal(value, "multipolygon") )
         {
             return true;
         }
@@ -63,7 +56,6 @@ std::ostream& operator<<(std::ostream& os, const OSMNode& node)
 {
     os << "OSM Node "  << node.node_id ;
     os << " --point_id -> "  << node.point_id << std::endl;
-
     return os;
 }
 
@@ -78,7 +70,7 @@ std::ostream& operator<<(std::ostream& os, const OSMWay& way)
         os << "\t\t" << key << " : " << value << std::endl; 
     }
 
-    os << "---------------------------"; 
+    os << "---------------------------------" << std::endl;
     return os;
 }
 
@@ -95,7 +87,7 @@ std::ostream& operator<<(std::ostream& os, const OSMRelation& relation)
     {
         os << "\t\t" << key << " : " << value << std::endl; 
     }
-    os << "---------------------------" << std::endl;
+    os << "---------------------------------" << std::endl;
     return os;
 }
 
@@ -107,6 +99,6 @@ std::ostream& operator<<(std::ostream& os, const OSMData& data)
     os << "\tNum Nodes     : "  << data.nodes.size() << std::endl;
     os << "\tNum Ways      : "  << data.ways.size() << std::endl;
     os << "\tNum Relations : "  << data.relations.size() << std::endl;
-    os << "---------------------------------";
+    os << "---------------------------------" << std::endl;
     return os;
 }

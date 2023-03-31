@@ -21,6 +21,7 @@ struct OSMPoint{
 struct OSMFace
 {
     std::vector<uint32_t> indices;
+    const char * role;
     bool is_road = false;
     uint32_t road__lanes = 1;
 
