@@ -13,7 +13,6 @@
 
 namespace fs = std::filesystem;
 
-using TagsMap = std::map<const char*, const char*>;
 
 
 

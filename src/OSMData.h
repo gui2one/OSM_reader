@@ -4,6 +4,10 @@
 
 #include <spdlog/fmt/ostr.h>
 #include "Utils.h"
+
+
+using TagsMap = std::map<const char*, const char*>;
+
 struct OSMNode
 {
     uint64_t node_id;
@@ -23,11 +27,12 @@ struct OSMWay
     bool is_building = false;
     bool is_road = false;
 
-    float building_height = 1.0f;
+    float building_height = 0.0f;
 
     friend std::ostream& operator<<(std::ostream& output, const OSMWay& osm_way);
 
     bool HasTag(const char* tag_key);
+    char* GetTagValue(const char* tag_key);
 };
 
 enum class OSMRelationMemberType{

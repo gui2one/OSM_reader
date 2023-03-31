@@ -17,7 +17,18 @@ bool OSMWay::HasTag(const char* tag_key)
     return false;
 }
 
+char *OSMWay::GetTagValue(const char *tag_key)
+{
+    for(std::map<const char*, const char*>::iterator it = tags.begin(); it != tags.end(); ++it)
+    {
+        if(str_is_equal(tag_key, it->first)) 
+        {
+            return (char*)it->second;
+        }
+    }
 
+    return "";
+}
 
 OSMRelation::OSMRelation()
 {

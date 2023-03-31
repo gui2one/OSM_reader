@@ -58,8 +58,8 @@ static TagsMap collect_child_tags(const pugi::xml_node& xml_node)
     for(const auto& tag_item : tags_set)
     {   
         auto& tag_node = tag_item.node();
-        auto key = tag_node.attribute("k").as_string();
-        auto value = tag_node.attribute("v").as_string();
+        auto key = tag_node.attribute("k").value();
+        auto value = tag_node.attribute("v").value();
 
         tags[key] = value;
     }
@@ -100,7 +100,7 @@ void OSMReader::CollectAllWays(OSMData& data)
     
     for(const auto& set_item : all_ways_set)
     {
-        auto way_node = set_item.node();
+        auto& way_node = set_item.node();
         OSMWay osm_way;
         osm_way.id = way_node.attribute("id").as_ullong();
 
@@ -121,6 +121,20 @@ void OSMReader::CollectAllWays(OSMData& data)
         {
             osm_way.is_building = true;
             // LOG_INFO("is building : {}", osm_way.is_building);
+            if(osm_way.HasTag("height"))
+            {
+                try{
+                    float val = std::atof(osm_way.GetTagValue("height"));
+
+                    // LOG_INFO("Tags Size : {}", osm_way.tags.size());
+                    
+                    osm_way.building_height = val;
+                }catch(std::exception e)
+                {
+                    // LOG_ERROR("Exception occured : {}", e.what());
+                }
+                
+            }
         }
         if(osm_way.HasTag("highway"))
         {

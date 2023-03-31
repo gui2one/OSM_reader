@@ -12,8 +12,6 @@ using Utils::str_is_equal;
 
 void clean_ways(std::map<uint64_t, OSMWay>& ways_map, std::map<uint64_t, OSMRelation>& relations_map)
 {
-    std::cout << "Fuck !!!!" << std::endl;
-
     std::set<uint64_t> in_relation_already;
 
     for(const auto& [id, relation] : relations_map)
@@ -163,6 +161,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
             OSMFace face;
             face.indices = indices;
             face.is_building = way.is_building;
+            face.building__height = way.building_height;
             face.is_road = way.is_road;
             mesh.faces.push_back(face);
             // LOG_INFO("Pushing Building Way {}", way_id);
@@ -184,8 +183,8 @@ int main(int argc, char** argv)
     {
         osm_file_path = argv[1];
     }else{
-        osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm";
-        // osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm";
+        // osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm";
+        osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_02.osm";
     }
 
     if( argc > 3 )
