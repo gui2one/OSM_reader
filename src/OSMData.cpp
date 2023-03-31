@@ -18,6 +18,27 @@ bool OSMWay::HasTag(const char* tag_key)
 }
 
 
+
+OSMRelation::OSMRelation()
+{
+}
+
+OSMRelation::~OSMRelation()
+{
+}
+
+bool OSMRelation::HasTag(const char* tag_key) const
+{
+    for(TagsMap::const_iterator it = tags.begin(); it != tags.end(); ++it)
+    {
+        if(str_is_equal(tag_key, it->first)) 
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 bool OSMRelation::IsBuildingType() const
 {
     for(const auto& [key, value]: tags)

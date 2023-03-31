@@ -20,6 +20,11 @@ struct OSMWay
     std::vector<uint64_t> refs;
     std::map<const char*, const char*> tags;
 
+    bool is_building = false;
+    bool is_road = false;
+
+    float building_height = 1.0f;
+
     friend std::ostream& operator<<(std::ostream& output, const OSMWay& osm_way);
 
     bool HasTag(const char* tag_key);
@@ -38,16 +43,23 @@ struct OSMRelationMember
     const char* role;
 };
 
-struct OSMRelation
+class OSMRelation
 {
+public:
+    OSMRelation();
+    ~OSMRelation();
     uint64_t id;
     std::vector<OSMRelationMember> members;
-    std::map<const char*, const char*> tags;
+
+    TagsMap tags;
 
     friend std::ostream& operator<<(std::ostream& output, const OSMRelation& relation);
+    
+    bool HasTag(const char* tag_key) const;
 
     bool IsBuildingType() const;
     bool IsMultipolygonType() const;
+
 };
 
 

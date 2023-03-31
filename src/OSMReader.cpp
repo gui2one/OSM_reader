@@ -113,9 +113,20 @@ void OSMReader::CollectAllWays(OSMData& data)
         } 
 
 
-
         /* Collect tags */
         osm_way.tags = collect_child_tags(way_node);
+
+
+        if(osm_way.HasTag("building"))
+        {
+            osm_way.is_building = true;
+            // LOG_INFO("is building : {}", osm_way.is_building);
+        }
+        if(osm_way.HasTag("highway"))
+        {
+            osm_way.is_road = true;
+            // LOG_INFO("is building : {}", osm_way.is_building);
+        }
 
         data.ways[osm_way.id] = osm_way;
 

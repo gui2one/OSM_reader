@@ -104,7 +104,11 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     ss << "element face " << osm_mesh.faces.size() << std::endl;
     ss << "property list uint uint vertex_index" << std::endl;
     ss << "property uint is_building" << std::endl;
+    ss << "property float building__height" << std::endl;
     ss << "property uint is_road" << std::endl;
+    ss << "property uint road__lanes" << std::endl;
+    ss << "property uint is_multipolygon" << std::endl;
+    ss << "property uint is_inner" << std::endl;
     ss << "end_header" << std::endl;
     
     out_file << ss.rdbuf();
@@ -132,11 +136,17 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
             out_file.write(reinterpret_cast<char*>(&index), sizeof(index));
         }
 
-        uint32_t is_building = face.is_building ? 1 : 0;
-        out_file.write(reinterpret_cast<char*>(&is_building), sizeof(is_building));
+        WriteFaceAttribute(out_file, face.is_building);
 
-        uint32_t is_road = face.is_road ? 1 : 0;
-        out_file.write(reinterpret_cast<char*>(&is_road), sizeof(is_road));
+        WriteFaceAttribute(out_file, face.building__height);
+
+        WriteFaceAttribute(out_file, face.is_road);
+
+        WriteFaceAttribute(out_file, face.road__lanes);
+
+        WriteFaceAttribute(out_file, face.is_multipolygon);
+
+        WriteFaceAttribute(out_file, face.is_inner);
     }
 
     out_file << std::endl;

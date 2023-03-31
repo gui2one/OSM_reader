@@ -17,31 +17,32 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
         mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
     }
 
-    // for(const auto& way : osm_data.ways)
-    // {
-    //     std::vector<uint32_t> indices;
-    //     for(auto& ref_node : way.second.refs)
-    //     {
-    //         try
-    //         {
-    //             const OSMNode& node = osm_data.nodes.at(ref_node);
-    //             indices.push_back(node.point_id);
+    for(const auto& [way_id, way] : osm_data.ways)
+    {
+        std::vector<uint32_t> indices;
+        for(auto& ref_node : way.refs)
+        {
+            try
+            {
+                const OSMNode& node = osm_data.nodes.at(ref_node);
+                indices.push_back(node.point_id);
 
-    //         }catch(const std::exception& e){
+            }catch(const std::exception& e){
             
-    //             LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
-    //         }
-    //     }
+                // LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
+            }
+        }
 
-    //     if(indices.size() > 1)
-    //     {
-    //         OSMFace face;
-    //         face.indices = indices;
-    //         // face.is_building = way.second.is_building;
-    //         // face.is_road = way.second.is_road;
-    //         mesh.faces.push_back(face);
-    //     }
-    // }
+        if(indices.size() > 1)
+        {
+            OSMFace face;
+            face.indices = indices;
+            face.is_building = way.is_building;
+            face.is_road = way.is_road;
+            mesh.faces.push_back(face);
+            // LOG_INFO("Pushing Building Way {}", way_id);
+        }
+    }
 
     for(const auto& [id, relation] : osm_data.relations)
     {
@@ -72,6 +73,7 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
                         }
 
                         face.indices = indices;
+                        face.is_building = true;
                         mesh.faces.push_back(face);                        
                         // LOG_INFO("building relation : Pushed indices");
                     }catch(const std::exception& e){
@@ -110,11 +112,20 @@ OSMMesh OSMDataToMesh(const OSMData& osm_data)
 
                         face.indices = indices;
                         face.role = role;
+                        if( relation.HasTag("building"))
+                        {
+                            face.is_building = true;
+                        }
+                        face.is_multipolygon = true;
+                        if(str_is_equal("inner", role))
+                        {
+                            face.is_inner = true;
+                        }
                         mesh.faces.push_back(face);                        
-                        LOG_INFO("building relation : Pushed indices");
+                        // LOG_INFO("building relation : Pushed indices");
                     }catch(const std::exception& e){
                     
-                        LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
+                        // LOG_ERROR("Problem while creating face from OSMWay Refs : \n{}", e.what());
                     }
                 }else{
                     LOG_INFO("Not implemented yet");
@@ -140,6 +151,7 @@ int main(int argc, char** argv)
         osm_file_path = argv[1];
     }else{
         osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/manhatan_02.osm";
+        // osm_file_path = "C:/gui2one/3D/houdini_19_playground/geo/OSM_data/rennes_01.osm";
     }
 
     if( argc > 3 )
