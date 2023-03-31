@@ -31,6 +31,7 @@ struct OSMFace
     bool is_multipolygon = false;
     bool is_inner = false;
     bool is_outline = false;
+    bool is_footway = false;
 
 };
 

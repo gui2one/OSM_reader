@@ -26,6 +26,7 @@ struct OSMWay
 
     bool is_building = false;
     bool is_road = false;
+    bool is_footway = false;
 
     float building_height = 0.0f;
 

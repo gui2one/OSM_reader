@@ -123,6 +123,11 @@ void OSMReader::CollectAllWays(OSMData& data)
         /* Collect tags */
         osm_way.tags = collect_child_tags(way_node);
 
+        /* Bail out early ?*/
+        if( osm_way.HasTag("route")) continue;
+        
+        if(osm_way.GetTagValue("highway") == std::string("footway")) osm_way.is_footway = true;
+
 
         if(osm_way.HasTag("building"))
         {

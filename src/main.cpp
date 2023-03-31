@@ -174,6 +174,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
             face.is_building = way.is_building;
             face.building__height = way.building_height;
             face.is_road = way.is_road;
+            face.is_footway = way.is_footway;
             mesh.faces.push_back(face);
             // LOG_INFO("Pushing Building Way {}", way_id);
         }

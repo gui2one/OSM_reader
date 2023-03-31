@@ -110,6 +110,7 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     ss << "property uint is_multipolygon" << std::endl;
     ss << "property uint is_inner" << std::endl;
     ss << "property uint is_outline" << std::endl;
+    ss << "property uint is_footway" << std::endl;
     ss << "end_header" << std::endl;
     
     out_file << ss.rdbuf();
@@ -152,6 +153,8 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
         WriteFaceAttribute(out_file, face.is_inner);
 
         WriteFaceAttribute(out_file, face.is_outline);
+
+        WriteFaceAttribute(out_file, face.is_footway);
     }
 
     out_file << std::endl;
