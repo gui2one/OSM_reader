@@ -25,6 +25,7 @@ struct OSMFace
 
     bool is_building = false;
     float building__height = 0.0f;
+    float building__min_height = 0.0f;
     bool is_road = false;
     uint32_t road_type;
     uint32_t road__lanes = 1;
@@ -32,6 +33,9 @@ struct OSMFace
     bool is_multipolygon = false;
     bool is_inner = false;
     bool is_outline = false;
+    
+    uint32_t layer_num = 0;
+    
 
 
 };

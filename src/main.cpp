@@ -21,11 +21,11 @@ void clean_ways(std::map<uint64_t, OSMWay>& ways_map, std::map<uint64_t, OSMRela
             if( member.type == OSMRelationMemberType::Way)
             {
                 in_relation_already.insert(member.ref_id);
-
+                /* set road_type stuff */
                 try{
 
                     auto& way_ref = ways_map.at(member.ref_id); 
-                    /* set road_type stuff */
+
                     std::string road_type = relation.GetTagValue("highway"); 
                     if(road_type == std::string("footway")) {
                         way_ref.road_type = (uint32_t)1;
@@ -39,6 +39,12 @@ void clean_ways(std::map<uint64_t, OSMWay>& ways_map, std::map<uint64_t, OSMRela
                     else if(road_type == std::string("motorway")) { way_ref.road_type = (uint32_t)7; }
                     else if(road_type == std::string("motorway_link")) { way_ref.road_type = (uint32_t)8; }
                     else if(road_type == std::string("service")) { way_ref.road_type = (uint32_t)9; }
+
+                    std::string layer_str = relation.GetTagValue("layer");
+                    uint32_t layer_num = std::stoi(layer_str);
+
+                    way_ref.layer_num = layer_num;
+
                 }catch(std::exception e)
                 {
 
@@ -109,6 +115,9 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
 
                         face.indices = indices;
                         face.is_building = true;
+
+                        face.layer_num = way.layer_num;
+                        face.building__min_height = way.building__min_height;
                         mesh.faces.push_back(face);                        
                         // LOG_INFO("building relation : Pushed indices");
                     }catch(const std::exception& e){
@@ -156,6 +165,9 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
                         {
                             face.is_inner = true;
                         }
+
+                        face.layer_num = way.layer_num;
+                        face.building__min_height = way.building__min_height;
                         mesh.faces.push_back(face);                        
                         // LOG_INFO("building relation : Pushed indices");
                     }catch(const std::exception& e){
@@ -194,9 +206,12 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
             OSMFace face;
             face.indices = indices;
             face.is_building = way.is_building;
-            face.building__height = way.building_height;
+            face.building__height = way.building__height;
+            face.building__min_height = way.building__min_height;
             face.is_road = way.is_road;
             face.road_type = way.road_type;
+
+            face.layer_num = way.layer_num;
             // if(face.road_type != 0)
             // {
             //     LOG_INFO("Road type {}", face.road_type);

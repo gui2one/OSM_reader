@@ -37,13 +37,15 @@ struct OSMWay
     std::vector<uint64_t> refs;
     TagsMap tags;
 
-    uint32_t road_type = 42;
 
     bool is_building = false;
-    bool is_road = false;
-    bool is_footway = false;
+    float building__height = 0.0f;
+    float building__min_height = 0.0f;
 
-    float building_height = 0.0f;
+    bool is_road = false;
+    uint32_t road_type = 42;
+
+    uint32_t layer_num;
 
     friend std::ostream& operator<<(std::ostream& output, const OSMWay& osm_way);
 

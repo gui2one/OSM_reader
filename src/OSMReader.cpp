@@ -153,7 +153,7 @@ void OSMReader::CollectAllWays(OSMData& data)
 
                     // LOG_INFO("Tags Size : {}", osm_way.tags.size());
                     
-                    osm_way.building_height = val;
+                    osm_way.building__height = val;
                 }catch(std::exception e)
                 {
                     // LOG_ERROR("Exception occured : {}", e.what());
@@ -165,6 +165,20 @@ void OSMReader::CollectAllWays(OSMData& data)
         {
             osm_way.is_road = true;
             // LOG_INFO("is building : {}", osm_way.is_building);
+        }
+
+        std::string layer_str = osm_way.GetTagValue("layer");
+        if( layer_str.empty() == false)
+        {
+            uint32_t layer_num = (uint32_t)std::stoi(layer_str);
+            osm_way.layer_num = layer_num;
+        }
+
+        std::string min_height_str = osm_way.GetTagValue("min_height");
+        if( min_height_str.empty() == false)
+        {
+            float min_height = (float)std::stof(min_height_str);
+            osm_way.building__min_height = min_height;
         }
 
         data.ways[osm_way.id] = osm_way;
