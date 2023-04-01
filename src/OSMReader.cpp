@@ -126,7 +126,20 @@ void OSMReader::CollectAllWays(OSMData& data)
         /* Bail out early ?*/
         if( osm_way.HasTag("route")) continue;
         
-        if(osm_way.GetTagValue("highway") == std::string("footway")) osm_way.is_footway = true;
+        std::string road_type = osm_way.GetTagValue("highway"); 
+        if(road_type == std::string("footway")) {
+            osm_way.road_type = (uint32_t)1;
+            // LOG_INFO("IS FOOTWAY");
+        }
+        else if(road_type == std::string("pedestrian")) { osm_way.road_type = (uint32_t)2; }
+        else if(road_type == std::string("residential")) { osm_way.road_type = (uint32_t)3; }
+        else if(road_type == std::string("primary")) { osm_way.road_type = (uint32_t)4; }
+        else if(road_type == std::string("secondary")) { osm_way.road_type = (uint32_t)5; }
+        else if(road_type == std::string("tertiary")) { osm_way.road_type = (uint32_t)6; }
+        else if(road_type == std::string("motorway")) { osm_way.road_type = (uint32_t)7; }
+        else if(road_type == std::string("motorway_link")) { osm_way.road_type = (uint32_t)8; }
+        else if(road_type == std::string("service")) { osm_way.road_type = (uint32_t)9; }
+        
 
 
         if(osm_way.HasTag("building"))
@@ -214,6 +227,8 @@ void OSMReader::CollectAllRelations(OSMData& data)
             /* collect tags */
 
             relation.tags = collect_child_tags(relation_node);
+
+            
 
         }
         

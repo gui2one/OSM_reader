@@ -50,6 +50,20 @@ bool OSMRelation::HasTag(const char* tag_key) const
 
     return false;
 }
+
+std::string OSMRelation::GetTagValue(const char *tag_key) const
+{
+    for(TagsMap::const_iterator it = tags.begin(); it != tags.end(); ++it)
+    {
+        if(str_is_equal(tag_key, it->first.c_str())) 
+        {
+            return it->second;
+        }
+    }
+
+    return std::string("");
+}
+
 bool OSMRelation::IsBuildingType() const
 {
     for(const auto& [key, value]: tags)

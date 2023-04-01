@@ -21,6 +21,28 @@ void clean_ways(std::map<uint64_t, OSMWay>& ways_map, std::map<uint64_t, OSMRela
             if( member.type == OSMRelationMemberType::Way)
             {
                 in_relation_already.insert(member.ref_id);
+
+                try{
+
+                    auto& way_ref = ways_map.at(member.ref_id); 
+                    /* set road_type stuff */
+                    std::string road_type = relation.GetTagValue("highway"); 
+                    if(road_type == std::string("footway")) {
+                        way_ref.road_type = (uint32_t)1;
+                        // LOG_INFO("IS FOOTWAY");
+                    }
+                    else if(road_type == std::string("pedestrian")) { way_ref.road_type = (uint32_t)2; }
+                    else if(road_type == std::string("residential")) { way_ref.road_type = (uint32_t)3; }
+                    else if(road_type == std::string("primary")) { way_ref.road_type = (uint32_t)4; }
+                    else if(road_type == std::string("secondary")) { way_ref.road_type = (uint32_t)5; }
+                    else if(road_type == std::string("tertiary")) { way_ref.road_type = (uint32_t)6; }
+                    else if(road_type == std::string("motorway")) { way_ref.road_type = (uint32_t)7; }
+                    else if(road_type == std::string("motorway_link")) { way_ref.road_type = (uint32_t)8; }
+                    else if(road_type == std::string("service")) { way_ref.road_type = (uint32_t)9; }
+                }catch(std::exception e)
+                {
+
+                }
             }   
         }
     }
@@ -174,7 +196,13 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
             face.is_building = way.is_building;
             face.building__height = way.building_height;
             face.is_road = way.is_road;
-            face.is_footway = way.is_footway;
+            face.road_type = way.road_type;
+            // if(face.road_type != 0)
+            // {
+            //     LOG_INFO("Road type {}", face.road_type);
+
+            // }
+            // face.is_footway = way.is_footway;
             mesh.faces.push_back(face);
             // LOG_INFO("Pushing Building Way {}", way_id);
         }

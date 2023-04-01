@@ -18,11 +18,26 @@ struct OSMNode
 };
 
 
+enum HighWayType : uint32_t{
+    NONE = 0,
+    FOOTWAY,
+    PEDESTRIAN,
+    RESIDENTIAL,
+    PRIMARY,
+    SECONDARY,
+    TERTIARY,
+    MOTORWAY,
+    MOTORWAY_LINK,
+    SERVICE
+};
+
 struct OSMWay
 {
     uint64_t id;
     std::vector<uint64_t> refs;
     TagsMap tags;
+
+    uint32_t road_type = 42;
 
     bool is_building = false;
     bool is_road = false;
@@ -62,6 +77,7 @@ public:
     friend std::ostream& operator<<(std::ostream& output, const OSMRelation& relation);
     
     bool HasTag(const char* tag_key) const;
+    std::string GetTagValue(const char *tag_key) const;
 
     bool IsBuildingType() const;
     bool IsMultipolygonType() const;

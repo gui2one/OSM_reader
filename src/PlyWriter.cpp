@@ -106,11 +106,11 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     ss << "property uint is_building" << std::endl;
     ss << "property float building__height" << std::endl;
     ss << "property uint is_road" << std::endl;
+    ss << "property uint road_type" << std::endl;
     ss << "property uint road__lanes" << std::endl;
     ss << "property uint is_multipolygon" << std::endl;
     ss << "property uint is_inner" << std::endl;
     ss << "property uint is_outline" << std::endl;
-    ss << "property uint is_footway" << std::endl;
     ss << "end_header" << std::endl;
     
     out_file << ss.rdbuf();
@@ -122,7 +122,7 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     
     for(auto& pt : osm_mesh.points)
     {
-        out_file << std::setprecision(20);
+        // out_file << std::setprecision(20);
         out_file.write(reinterpret_cast<char*>(&pt), sizeof(pt));
     }
     
@@ -146,6 +146,8 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
 
         WriteFaceAttribute(out_file, face.is_road);
 
+        WriteFaceAttribute(out_file, face.road_type);
+        
         WriteFaceAttribute(out_file, face.road__lanes);
 
         WriteFaceAttribute(out_file, face.is_multipolygon);
@@ -154,7 +156,6 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
 
         WriteFaceAttribute(out_file, face.is_outline);
 
-        WriteFaceAttribute(out_file, face.is_footway);
     }
 
     out_file << std::endl;
