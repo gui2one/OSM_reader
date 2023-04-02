@@ -1,4 +1,5 @@
 build/
 Resources/
 houdini/OSM_CPP_reader.hda/backup/
+houdini/backup/
 *.ply
