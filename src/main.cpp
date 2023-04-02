@@ -181,6 +181,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
             face.building__height = way.building__height;
             face.building__min_height = way.building__min_height;
             face.is_road = way.is_road;
+            face.is_crossing = way.is_crossing;
             face.road_type = way.road_type;
 
             face.layer_num = way.layer_num;

@@ -27,6 +27,7 @@ struct OSMFace
     float building__height = 0.0f;
     float building__min_height = 0.0f;
     bool is_road = false;
+    bool is_crossing = false;
     uint32_t road_type;
     uint32_t road__lanes = 1;
 

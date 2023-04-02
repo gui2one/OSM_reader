@@ -107,6 +107,7 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     ss << "property float building__height" << std::endl;
     ss << "property float building__min_height" << std::endl;
     ss << "property uchar is_road" << std::endl;
+    ss << "property uchar is_crossing" << std::endl;
     ss << "property uint road_type" << std::endl;
     ss << "property uint road__lanes" << std::endl;
     ss << "property uchar is_multipolygon" << std::endl;
@@ -134,12 +135,13 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
         /* first write number of vertices in this face */
         uint32_t num_verts = (uint32_t)face.indices.size();
 
-        out_file.write(reinterpret_cast<char*>(&num_verts), sizeof(num_verts));
+
+        WriteFaceAttribute(out_file, num_verts);
 
         /* then write the face vertices indices */
         for(auto& index : face.indices )
         {
-            out_file.write(reinterpret_cast<char*>(&index), sizeof(index));
+            WriteFaceAttribute(out_file, index);
         }
 
         WriteFaceAttribute(out_file, face.is_building);
@@ -149,6 +151,8 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
         WriteFaceAttribute(out_file, face.building__min_height);
 
         WriteFaceAttribute(out_file, face.is_road);
+
+        WriteFaceAttribute(out_file, face.is_crossing);
 
         WriteFaceAttribute(out_file, face.road_type);
         

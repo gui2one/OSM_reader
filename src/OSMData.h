@@ -18,9 +18,11 @@ struct OSMNode
 };
 
 
-enum HighWayType : uint32_t{
+enum OSMHighWayType : uint32_t{
     NONE = 0,
     FOOTWAY,
+    CROSSING,
+    SIDEWALK,
     PEDESTRIAN,
     RESIDENTIAL,
     PRIMARY,
@@ -43,7 +45,8 @@ struct OSMWay
     float building__min_height = 0.0f;
 
     bool is_road = false;
-    uint32_t road_type = 42;
+    bool is_crossing = false;
+    uint32_t road_type = 0;
 
     uint32_t layer_num;
 
