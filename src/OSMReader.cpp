@@ -127,18 +127,15 @@ void OSMReader::CollectAllWays(OSMData& data)
         if( osm_way.HasTag("route")) continue;
         
         std::string road_type = osm_way.GetTagValue("highway"); 
-        if(road_type == std::string("footway")) {
-            osm_way.road_type = (uint32_t)1;
-            // LOG_INFO("IS FOOTWAY");
-        }
-        else if(road_type == std::string("pedestrian")) { osm_way.road_type = (uint32_t)2; }
-        else if(road_type == std::string("residential")) { osm_way.road_type = (uint32_t)3; }
-        else if(road_type == std::string("primary")) { osm_way.road_type = (uint32_t)4; }
-        else if(road_type == std::string("secondary")) { osm_way.road_type = (uint32_t)5; }
-        else if(road_type == std::string("tertiary")) { osm_way.road_type = (uint32_t)6; }
-        else if(road_type == std::string("motorway")) { osm_way.road_type = (uint32_t)7; }
-        else if(road_type == std::string("motorway_link")) { osm_way.road_type = (uint32_t)8; }
-        else if(road_type == std::string("service")) { osm_way.road_type = (uint32_t)9; }
+        if(road_type == std::string("footway")) {osm_way.road_type = (uint32_t)HighWayType::FOOTWAY;}
+        else if(road_type == std::string("pedestrian")) { osm_way.road_type = (uint32_t)HighWayType::PEDESTRIAN; }
+        else if(road_type == std::string("residential")) { osm_way.road_type = (uint32_t)HighWayType::RESIDENTIAL; }
+        else if(road_type == std::string("primary")) { osm_way.road_type = (uint32_t)HighWayType::PRIMARY; }
+        else if(road_type == std::string("secondary")) { osm_way.road_type = (uint32_t)HighWayType::SECONDARY; }
+        else if(road_type == std::string("tertiary")) { osm_way.road_type = (uint32_t)HighWayType::TERTIARY; }
+        else if(road_type == std::string("motorway")) { osm_way.road_type = (uint32_t)HighWayType::MOTORWAY; }
+        else if(road_type == std::string("motorway_link")) { osm_way.road_type = (uint32_t)HighWayType::MOTORWAY_LINK; }
+        else if(road_type == std::string("service")) { osm_way.road_type = (uint32_t)HighWayType::SERVICE; }
         
 
 
@@ -266,6 +263,42 @@ void OSMReader::CollectAllRelations(OSMData& data)
             data.relations[relation.id] = relation;
         }
     }
+    
+        /* set road_type stuff */
+        
+        /* but why do it here ?! */
+    
+        for( const auto&[relation_id, relation] : data.relations)
+        {
+            for(auto& member : relation.members){
+
+                try{
+
+                    auto& way_ref = data.ways.at(member.ref_id); 
+
+                    std::string road_type = relation.GetTagValue("highway"); 
+                    if     (road_type == std::string("footway"))       { way_ref.road_type = (uint32_t)HighWayType::FOOTWAY; }
+                    else if(road_type == std::string("pedestrian"))    { way_ref.road_type = (uint32_t)HighWayType::PEDESTRIAN; }
+                    else if(road_type == std::string("residential"))   { way_ref.road_type = (uint32_t)HighWayType::RESIDENTIAL; }
+                    else if(road_type == std::string("primary"))       { way_ref.road_type = (uint32_t)HighWayType::PRIMARY; }
+                    else if(road_type == std::string("secondary"))     { way_ref.road_type = (uint32_t)HighWayType::SECONDARY; }
+                    else if(road_type == std::string("tertiary"))      { way_ref.road_type = (uint32_t)HighWayType::TERTIARY; }
+                    else if(road_type == std::string("motorway"))      { way_ref.road_type = (uint32_t)HighWayType::MOTORWAY; }
+                    else if(road_type == std::string("motorway_link")) { way_ref.road_type = (uint32_t)HighWayType::MOTORWAY_LINK; }
+                    else if(road_type == std::string("service"))       { way_ref.road_type = (uint32_t)HighWayType::SERVICE; }
+
+                    std::string layer_str = relation.GetTagValue("layer");
+                    uint32_t layer_num = std::stoi(layer_str);
+
+                    way_ref.layer_num = layer_num;
+
+                }catch(std::exception e)
+                {
+
+                }
+            }
+        }
+
     LOG_INFO("Collected All Relations : {}", data.relations.size());
 }
 

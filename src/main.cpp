@@ -21,34 +21,6 @@ void clean_ways(std::map<uint64_t, OSMWay>& ways_map, std::map<uint64_t, OSMRela
             if( member.type == OSMRelationMemberType::Way)
             {
                 in_relation_already.insert(member.ref_id);
-                /* set road_type stuff */
-                try{
-
-                    auto& way_ref = ways_map.at(member.ref_id); 
-
-                    std::string road_type = relation.GetTagValue("highway"); 
-                    if(road_type == std::string("footway")) {
-                        way_ref.road_type = (uint32_t)1;
-                        // LOG_INFO("IS FOOTWAY");
-                    }
-                    else if(road_type == std::string("pedestrian")) { way_ref.road_type = (uint32_t)2; }
-                    else if(road_type == std::string("residential")) { way_ref.road_type = (uint32_t)3; }
-                    else if(road_type == std::string("primary")) { way_ref.road_type = (uint32_t)4; }
-                    else if(road_type == std::string("secondary")) { way_ref.road_type = (uint32_t)5; }
-                    else if(road_type == std::string("tertiary")) { way_ref.road_type = (uint32_t)6; }
-                    else if(road_type == std::string("motorway")) { way_ref.road_type = (uint32_t)7; }
-                    else if(road_type == std::string("motorway_link")) { way_ref.road_type = (uint32_t)8; }
-                    else if(road_type == std::string("service")) { way_ref.road_type = (uint32_t)9; }
-
-                    std::string layer_str = relation.GetTagValue("layer");
-                    uint32_t layer_num = std::stoi(layer_str);
-
-                    way_ref.layer_num = layer_num;
-
-                }catch(std::exception e)
-                {
-
-                }
             }   
         }
     }
