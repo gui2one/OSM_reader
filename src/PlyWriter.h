@@ -67,7 +67,7 @@ private:
     template<>
     void WriteFaceAttribute<bool>(std::ofstream& out, bool attrib_value)
     {
-        uint32_t converted = attrib_value ? 1 : 0;
+        uint8_t converted = attrib_value ? 1 : 0;
         out.write(reinterpret_cast<char*>(&converted), sizeof(converted));
     }
 

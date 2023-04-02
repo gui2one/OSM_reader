@@ -12,6 +12,37 @@ OSMReader::~OSMReader()
 
 }
 
+
+static TagsMap collect_child_tags(const pugi::xml_node& xml_node)
+{
+    auto tags_set = xml_node.select_nodes("tag");
+
+    TagsMap tags;
+    for(const auto& tag_item : tags_set)
+    {   
+        auto& tag_node = tag_item.node();
+        auto key = tag_node.attribute("k").value();
+        auto value = tag_node.attribute("v").value();
+
+        tags[key] = value;
+    }
+
+    return tags;
+}
+
+static void set_road_type(OSMWay& way, std::string& road_type)
+{
+    if(road_type == std::string("footway")) {way.road_type = (uint32_t)HighWayType::FOOTWAY;}
+    else if(road_type == std::string("pedestrian")) { way.road_type = (uint32_t)HighWayType::PEDESTRIAN; }
+    else if(road_type == std::string("residential")) { way.road_type = (uint32_t)HighWayType::RESIDENTIAL; }
+    else if(road_type == std::string("primary")) { way.road_type = (uint32_t)HighWayType::PRIMARY; }
+    else if(road_type == std::string("secondary")) { way.road_type = (uint32_t)HighWayType::SECONDARY; }
+    else if(road_type == std::string("tertiary")) { way.road_type = (uint32_t)HighWayType::TERTIARY; }
+    else if(road_type == std::string("motorway")) { way.road_type = (uint32_t)HighWayType::MOTORWAY; }
+    else if(road_type == std::string("motorway_link")) { way.road_type = (uint32_t)HighWayType::MOTORWAY_LINK; }
+    else if(road_type == std::string("service")) { way.road_type = (uint32_t)HighWayType::SERVICE; }
+}
+
 static OSMData empty_data()
 {
     OSMData empty_data;
@@ -19,6 +50,7 @@ static OSMData empty_data()
 
     return empty_data;
 }
+
 OSMData OSMReader::Load(fs::path path)
 {
     if(!fs::exists(path))
@@ -50,23 +82,6 @@ OSMData OSMReader::Load(fs::path path)
     return osm_data;
 }
 
-static TagsMap collect_child_tags(const pugi::xml_node& xml_node)
-{
-    auto tags_set = xml_node.select_nodes("tag");
-
-    TagsMap tags;
-    for(const auto& tag_item : tags_set)
-    {   
-        auto& tag_node = tag_item.node();
-        auto key = tag_node.attribute("k").value();
-        auto value = tag_node.attribute("v").value();
-
-        tags[key] = value;
-    }
-
-    return tags;
-}
-
 
 void OSMReader::CollectAllNodes(OSMData& data)
 {   
@@ -82,14 +97,9 @@ void OSMReader::CollectAllNodes(OSMData& data)
 
         auto string_lat = std::string(node_node.attribute("lat").value());
 
-        osm_node.lat = (float)(node_node.attribute("lat").as_double());
-        osm_node.lon = (float)(node_node.attribute("lon").as_double());
+        osm_node.lat = (float)(node_node.attribute("lat").as_float());
+        osm_node.lon = (float)(node_node.attribute("lon").as_float());
         
-        // std::cout << string_lat << std::endl;
-        // std::cout << std::fixed << osm_node.lat << std::endl;
-        // std::cout << "---------------------------------------" << std::endl;
-        
-
         data.nodes[osm_node.node_id] = osm_node;
 
         pt_index++;
@@ -127,17 +137,8 @@ void OSMReader::CollectAllWays(OSMData& data)
         if( osm_way.HasTag("route")) continue;
         
         std::string road_type = osm_way.GetTagValue("highway"); 
-        if(road_type == std::string("footway")) {osm_way.road_type = (uint32_t)HighWayType::FOOTWAY;}
-        else if(road_type == std::string("pedestrian")) { osm_way.road_type = (uint32_t)HighWayType::PEDESTRIAN; }
-        else if(road_type == std::string("residential")) { osm_way.road_type = (uint32_t)HighWayType::RESIDENTIAL; }
-        else if(road_type == std::string("primary")) { osm_way.road_type = (uint32_t)HighWayType::PRIMARY; }
-        else if(road_type == std::string("secondary")) { osm_way.road_type = (uint32_t)HighWayType::SECONDARY; }
-        else if(road_type == std::string("tertiary")) { osm_way.road_type = (uint32_t)HighWayType::TERTIARY; }
-        else if(road_type == std::string("motorway")) { osm_way.road_type = (uint32_t)HighWayType::MOTORWAY; }
-        else if(road_type == std::string("motorway_link")) { osm_way.road_type = (uint32_t)HighWayType::MOTORWAY_LINK; }
-        else if(road_type == std::string("service")) { osm_way.road_type = (uint32_t)HighWayType::SERVICE; }
+        set_road_type(osm_way, road_type);
         
-
 
         if(osm_way.HasTag("building"))
         {
@@ -277,15 +278,7 @@ void OSMReader::CollectAllRelations(OSMData& data)
                     auto& way_ref = data.ways.at(member.ref_id); 
 
                     std::string road_type = relation.GetTagValue("highway"); 
-                    if     (road_type == std::string("footway"))       { way_ref.road_type = (uint32_t)HighWayType::FOOTWAY; }
-                    else if(road_type == std::string("pedestrian"))    { way_ref.road_type = (uint32_t)HighWayType::PEDESTRIAN; }
-                    else if(road_type == std::string("residential"))   { way_ref.road_type = (uint32_t)HighWayType::RESIDENTIAL; }
-                    else if(road_type == std::string("primary"))       { way_ref.road_type = (uint32_t)HighWayType::PRIMARY; }
-                    else if(road_type == std::string("secondary"))     { way_ref.road_type = (uint32_t)HighWayType::SECONDARY; }
-                    else if(road_type == std::string("tertiary"))      { way_ref.road_type = (uint32_t)HighWayType::TERTIARY; }
-                    else if(road_type == std::string("motorway"))      { way_ref.road_type = (uint32_t)HighWayType::MOTORWAY; }
-                    else if(road_type == std::string("motorway_link")) { way_ref.road_type = (uint32_t)HighWayType::MOTORWAY_LINK; }
-                    else if(road_type == std::string("service"))       { way_ref.road_type = (uint32_t)HighWayType::SERVICE; }
+                    set_road_type(way_ref, road_type);
 
                     std::string layer_str = relation.GetTagValue("layer");
                     uint32_t layer_num = std::stoi(layer_str);
