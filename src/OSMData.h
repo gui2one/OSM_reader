@@ -30,7 +30,8 @@ enum OSMHighWayType : uint32_t{
     TERTIARY,
     MOTORWAY,
     MOTORWAY_LINK,
-    SERVICE
+    SERVICE,
+    TRUNK
 };
 
 struct OSMWay

@@ -58,6 +58,7 @@ static void set_road_type(OSMWay& way, std::string& road_type)
     else if(road_type == std::string("motorway")) { way.road_type = (uint32_t)OSMHighWayType::MOTORWAY; }
     else if(road_type == std::string("motorway_link")) { way.road_type = (uint32_t)OSMHighWayType::MOTORWAY_LINK; }
     else if(road_type == std::string("service")) { way.road_type = (uint32_t)OSMHighWayType::SERVICE; }
+    else if(road_type == std::string("trunk")) { way.road_type = (uint32_t)OSMHighWayType::TRUNK; }
 
     if(way.road_type == OSMHighWayType::FOOTWAY)
     {

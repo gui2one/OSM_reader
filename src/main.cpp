@@ -52,7 +52,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
         mesh.points.push_back({point.second.lon, 0.0, point.second.lat, (uint32_t)(point.second.point_id)});
     }
 
-
+    std::map<uint64_t, OSMRelation> used_relations;
     for(auto& [id, relation] : osm_data.relations)
     {
 
@@ -61,7 +61,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
 
             // LOG_INFO(relation);
             // continue;
-
+            used_relations[id] = relation;
             OSMFace face;
 
             for(auto& member : relation.members)
@@ -106,7 +106,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
         {
             // LOG_INFO(relation);
             // continue;
-
+            used_relations[id] = relation;
             OSMFace face;
 
             for(auto& member : relation.members)
@@ -155,7 +155,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
     }
 
     /* clean ways before constructing, because they might already be in a relation */
-    clean_ways(osm_data.ways, osm_data.relations);
+    clean_ways(osm_data.ways, used_relations);
 
     for(const auto& [way_id, way] : osm_data.ways)
     {
