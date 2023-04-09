@@ -104,6 +104,7 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
     ss << "element face " << osm_mesh.faces.size() << std::endl;
     ss << "property list uint uint vertex_index" << std::endl;
     ss << "property uchar is_building" << std::endl;
+    ss << "property uchar is_bridge" << std::endl;
     ss << "property float building__height" << std::endl;
     ss << "property float building__min_height" << std::endl;
     ss << "property uchar is_road" << std::endl;
@@ -145,6 +146,8 @@ void PlyWriter::WriteBinary(fs::path path, OSMMesh &osm_mesh)
         }
 
         WriteFaceAttribute(out_file, face.is_building);
+
+        WriteFaceAttribute(out_file, face.is_bridge);
 
         WriteFaceAttribute(out_file, face.building__height);
         

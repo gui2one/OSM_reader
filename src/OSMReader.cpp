@@ -59,6 +59,7 @@ static void set_road_type(OSMWay& way, std::string& road_type)
     else if(road_type == std::string("motorway_link")) { way.road_type = (uint32_t)OSMHighWayType::MOTORWAY_LINK; }
     else if(road_type == std::string("service")) { way.road_type = (uint32_t)OSMHighWayType::SERVICE; }
     else if(road_type == std::string("trunk")) { way.road_type = (uint32_t)OSMHighWayType::TRUNK; }
+    else if(road_type == std::string("trunk_link")) { way.road_type = (uint32_t)OSMHighWayType::TRUNK_LINK; }
 
     if(way.road_type == OSMHighWayType::FOOTWAY)
     {
@@ -165,7 +166,7 @@ void OSMReader::CollectAllWays(OSMData& data)
 
         
 
-        if(osm_way.HasTag("building"))
+        if(osm_way.HasTag("building") || osm_way.HasTag("building:part"))
         {
             osm_way.is_building = true;
             // LOG_INFO("is building : {}", osm_way.is_building);
@@ -182,6 +183,12 @@ void OSMReader::CollectAllWays(OSMData& data)
                     // LOG_ERROR("Exception occured : {}", e.what());
                 }
                 
+            }
+        }
+        if(osm_way.HasTag("man_made"))
+        {
+            if( osm_way.GetTagValue("man_made") == "bridge"){
+                osm_way.is_bridge = true;
             }
         }
         if(osm_way.HasTag("highway"))

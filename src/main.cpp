@@ -178,6 +178,7 @@ OSMMesh OSMDataToMesh(OSMData& osm_data)
             OSMFace face;
             face.indices = indices;
             face.is_building = way.is_building;
+            face.is_bridge = way.is_bridge;
             face.building__height = way.building__height;
             face.building__min_height = way.building__min_height;
             face.is_road = way.is_road;

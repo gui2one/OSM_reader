@@ -24,6 +24,7 @@ struct OSMFace
     const char * role;
 
     bool is_building = false;
+    bool is_bridge = false;
     float building__height = 0.0f;
     float building__min_height = 0.0f;
     bool is_road = false;
